@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galaw Pinoy | Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- GLOBAL NAVIGATION -->
+  <nav>
+    <div class="nav-container">
+      <h2>GALAW PINOY</h2>
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About the Advocacy</a></li>
+        <li><a href="play.html">Play & Move</a></li>
+        <li><a href="laro.html">Most Played Laro ng Lahi</a></li>
+        <li><a href="health.html">Health & Fitness</a></li>
+        <li><a href="proof.html">Proof & Documentation</a></li>
+        <li><a href="join.html">Join the Movement</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Move Your Body. Rediscover Filipino Culture.</h1>
+      <p>
+        Galaw Pinoy is a digital advocacy that promotes health and fitness by
+        transforming traditional Filipino games into interactive physical
+        activities using modern web technology.
+      </p>
+      <div class="button-group">
+        <a href="play.html" class="btn btn-primary">Start Moving</a>
+        <a href="laro.html" class="btn btn-secondary">Explore Filipino Games</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM STATEMENT -->
+  <section>
+    <h2 style="margin-bottom: var(--space-6);">Why Movement and Culture Matter Today</h2>
+    <p style="margin-bottom: 0;">
+      Many Filipino youth today live sedentary lifestyles due to prolonged
+      screen time and limited physical activity. At the same time, traditional
+      Filipino games are slowly being forgotten. Galaw Pinoy addresses both
+      issues by using technology as a tool for movement and cultural awareness.
+    </p>
+  </section>
+
+  <!-- ADVOCACY PILLARS -->
+  <section>
+    <h2 class="text-center" style="margin-bottom: var(--space-10);">Our Advocacy Pillars</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <h3 style="margin-bottom: var(--space-3);">Move</h3>
+        <p style="margin: 0;">Encourage physical activity through dynamic, body-based interaction.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
+        <h3 style="margin-bottom: var(--space-3);">Preserve</h3>
+        <p style="margin: 0;">Revive traditional Filipino games and pass them on to the next generation.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <h3 style="margin-bottom: var(--space-3);">Engage</h3>
+        <p style="margin: 0;">Use webcam-based activities to create fun and accessible movement experiences.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED GAME -->
+  <section>
+    <div class="card">
+      <h2 style="margin-bottom: var(--space-4);">Featured Interactive Game</h2>
+      <h3 style="margin-bottom: var(--space-4);">Virtual Luksong Baka</h3>
+      <p style="margin-bottom: var(--space-8);">
+        Jump over a virtual line displayed on screen while your webcam tracks your
+        movement. Levels increase in difficulty to simulate the traditional game.
+      </p>
+      <div class="button-group" style="justify-content: flex-start; margin-top: 0;">
+        <a href="play.html" class="btn btn-primary">Try Virtual Luksong Baka</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Navigation scroll effect
+    window.addEventListener("scroll", () => {
+      const nav = document.querySelector("nav");
+      nav.classList.toggle("scrolled", window.scrollY > 50);
+    });
+
+    // Mobile menu toggle
+    const menuToggle = document.querySelector(".menu-toggle");
+    const navMenu = document.querySelector("nav ul");
+    
+    if (menuToggle) {
+      menuToggle.addEventListener("click", () => {
+        menuToggle.classList.toggle("active");
+        navMenu.classList.toggle("active");
+      });
+
+      // Close menu when clicking on a link
+      const navLinks = document.querySelectorAll("nav ul li a");
+      navLinks.forEach(link => {
+        link.addEventListener("click", () => {
+          menuToggle.classList.remove("active");
+          navMenu.classList.remove("active");
+        });
+      });
+    }
+
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px"
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    }, observerOptions);
+
+    // Observe all sections (except hero)
+    document.querySelectorAll("section:not(.hero)").forEach(section => {
+      observer.observe(section);
+    });
+  </script>
+
+</body>
+</html>

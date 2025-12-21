@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Virtual Luksong Tinik | Galaw Pinoy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-container">
+      <h2>GALAW PINOY</h2>
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About the Advocacy</a></li>
+        <li><a href="play.html">Play & Move</a></li>
+        <li><a href="laro.html">Most Played Laro ng Lahi</a></li>
+        <li><a href="health.html">Health & Fitness</a></li>
+        <li><a href="proof.html">Proof & Documentation</a></li>
+        <li><a href="join.html">Join the Movement</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Virtual Luksong Tinik</h1>
+      <p>Flexibility and coordination challenge</p>
+      <div class="button-group">
+        <a href="luksong-tinik.html" class="btn btn-primary">Start Activity</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h2>Description</h2>
+      <p>Two virtual lines gradually move apart, creating a widening obstacle. The player must jump over the lines without touching them.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Rules</h2>
+    <div class="card">
+      <ol>
+        <li>The game starts with two lines close together.</li>
+        <li>The distance between the lines slowly increases.</li>
+        <li>The player jumps at the correct time.</li>
+        <li>Touching a line ends the attempt.</li>
+        <li>The activity ends when the player fails or completes all levels.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2>Focus Areas</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+        </div>
+        <h3>Flexibility</h3>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+        <h3>Endurance</h3>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <h3>Coordination</h3>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    window.addEventListener("scroll", () => {
+      const nav = document.querySelector("nav");
+      if (nav) nav.classList.toggle("scrolled", window.scrollY > 50);
+    });
+
+    const menuToggle = document.querySelector(".menu-toggle");
+    const navMenu = document.querySelector("nav ul");
+    
+    if (menuToggle) {
+      menuToggle.addEventListener("click", () => {
+        menuToggle.classList.toggle("active");
+        if (navMenu) navMenu.classList.toggle("active");
+      });
+
+      const navLinks = document.querySelectorAll("nav ul li a");
+      navLinks.forEach(link => {
+        link.addEventListener("click", () => {
+          menuToggle.classList.remove("active");
+          if (navMenu) navMenu.classList.remove("active");
+        });
+      });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+    document.querySelectorAll("section:not(.hero)").forEach(section => {
+      observer.observe(section);
+    });
+  </script>
+
+</body>
+</html>

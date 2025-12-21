@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Patintero</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.18.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+</head>
+
+<body>
+<nav>
+  <div class="nav-container">
+    <h2>GALAW PINOY</h2>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About the Advocacy</a></li>
+      <li><a href="play.html">Play & Move</a></li>
+      <li><a href="laro.html">Most Played Laro ng Lahi</a></li>
+      <li><a href="health.html">Health & Fitness</a></li>
+      <li><a href="proof.html">Proof & Documentation</a></li>
+      <li><a href="join.html">Join the Movement</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section id="patintero-selection">
+  <h1>Patintero</h1>
+  <p>Step back until your full body is visible on camera.</p>
+  <button id="patinteroStartBtn" class="btn btn-primary">START GAME</button>
+</section>
+
+<section id="game-section">
+  <video id="video" autoplay muted playsinline style="display: block;"></video>
+  <canvas id="overlay"></canvas>
+
+  <div class="hud">
+    <div id="status">Initializing camera...</div>
+    <div>Time: <span id="timer">0</span>s</div>
+  </div>
+
+  <button id="patinteroActionBtn" class="patintero-action-btn">START</button>
+</section>
+
+<script>
+  window.addEventListener("scroll", () => {
+    const nav = document.querySelector("nav");
+    if (nav) nav.classList.toggle("scrolled", window.scrollY > 50);
+  });
+
+  const menuToggle = document.querySelector(".menu-toggle");
+  const navMenu = document.querySelector("nav ul");
+  
+  if (menuToggle) {
+    menuToggle.addEventListener("click", () => {
+      menuToggle.classList.toggle("active");
+      if (navMenu) navMenu.classList.toggle("active");
+    });
+
+    const navLinks = document.querySelectorAll("nav ul li a");
+    navLinks.forEach(link => {
+      link.addEventListener("click", () => {
+        menuToggle.classList.remove("active");
+        if (navMenu) navMenu.classList.remove("active");
+      });
+    });
+  }
+</script>
+
+<script src="js/patintero.js"></script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galaw Pinoy | Laro ng Lahi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- GLOBAL NAVIGATION -->
+  <nav>
+    <div class="nav-container">
+      <h2>GALAW PINOY</h2>
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About the Advocacy</a></li>
+        <li><a href="play.html">Play & Move</a></li>
+        <li><a href="laro.html">Most Played Laro ng Lahi</a></li>
+        <li><a href="health.html">Health & Fitness</a></li>
+        <li><a href="proof.html">Proof & Documentation</a></li>
+        <li><a href="join.html">Join the Movement</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero" style="min-height: 70vh;">
+    <div class="hero-content">
+      <h1 style="margin-bottom: var(--space-6);">Most Played Laro ng Lahi in the Philippines</h1>
+      <p style="margin-bottom: 0;">
+        These traditional games have been played for generations and continue to
+        shape Filipino childhood and culture.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="card-grid" style="margin-top: 0;">
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-3);">Luksong Baka</h3>
+        <p style="margin: 0;">A jumping game that develops leg strength, balance, and courage.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-3);">Luksong Tinik</h3>
+        <p style="margin: 0;">Promotes flexibility, coordination, and timing.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-3);">Patintero</h3>
+        <p style="margin: 0;">Builds agility, teamwork, and strategy.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-3);">Piko</h3>
+        <p style="margin: 0;">Improves balance, coordination, and focus.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-3);">Tumbang Preso</h3>
+        <p style="margin: 0;">Develops accuracy, speed, and agility.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-3);">Agawan Base</h3>
+        <p style="margin: 0;">Enhances endurance, teamwork, and strategic thinking.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-3);">Langit-Lupa</h3>
+        <p style="margin: 0;">Improves reaction time and cardiovascular endurance.</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    window.addEventListener("scroll", () => {
+      const nav = document.querySelector("nav");
+      nav.classList.toggle("scrolled", window.scrollY > 50);
+    });
+
+    const menuToggle = document.querySelector(".menu-toggle");
+    const navMenu = document.querySelector("nav ul");
+    
+    if (menuToggle) {
+      menuToggle.addEventListener("click", () => {
+        menuToggle.classList.toggle("active");
+        navMenu.classList.toggle("active");
+      });
+
+      const navLinks = document.querySelectorAll("nav ul li a");
+      navLinks.forEach(link => {
+        link.addEventListener("click", () => {
+          menuToggle.classList.remove("active");
+          navMenu.classList.remove("active");
+        });
+      });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+    document.querySelectorAll("section:not(.hero)").forEach(section => {
+      observer.observe(section);
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galaw Pinoy | Join the Movement</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- GLOBAL NAVIGATION -->
+  <nav>
+    <div class="nav-container">
+      <h2>GALAW PINOY</h2>
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About the Advocacy</a></li>
+        <li><a href="play.html">Play & Move</a></li>
+        <li><a href="laro.html">Most Played Laro ng Lahi</a></li>
+        <li><a href="health.html">Health & Fitness</a></li>
+        <li><a href="proof.html">Proof & Documentation</a></li>
+        <li><a href="join.html">Join the Movement</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero" style="min-height: 70vh;">
+    <div class="hero-content">
+      <h1 style="margin-bottom: var(--space-6);">Move with Purpose. Play with Culture.</h1>
+      <p style="margin-bottom: 0;">
+        Galaw Pinoy invites you to take part in preserving Filipino culture while
+        improving your health through movement.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h2 style="margin-bottom: var(--space-4);">Ways to Participate</h2>
+      <ul style="margin: 0; padding-top: 0;">
+        <li>Play the interactive games</li>
+        <li>Share the advocacy with others</li>
+        <li>Integrate Galaw Pinoy into PE activities</li>
+        <li>Promote traditional Filipino games</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h2 style="margin-bottom: var(--space-4);">Reflection</h2>
+      <p style="margin-bottom: var(--space-6);">
+        How did this experience change your view of fitness and Filipino culture?
+      </p>
+
+      <!-- Firebase form placeholder -->
+      <form style="margin-top: 0;">
+        <textarea
+          rows="5"
+          placeholder="Write your reflection here..."
+          style="margin-bottom: var(--space-6);"
+        ></textarea>
+        <div class="button-group" style="justify-content: flex-start; margin-top: 0;">
+          <button type="submit" class="btn btn-primary">Submit Reflection</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    window.addEventListener("scroll", () => {
+      const nav = document.querySelector("nav");
+      nav.classList.toggle("scrolled", window.scrollY > 50);
+    });
+
+    const menuToggle = document.querySelector(".menu-toggle");
+    const navMenu = document.querySelector("nav ul");
+    
+    if (menuToggle) {
+      menuToggle.addEventListener("click", () => {
+        menuToggle.classList.toggle("active");
+        navMenu.classList.toggle("active");
+      });
+
+      const navLinks = document.querySelectorAll("nav ul li a");
+      navLinks.forEach(link => {
+        link.addEventListener("click", () => {
+          menuToggle.classList.remove("active");
+          navMenu.classList.remove("active");
+        });
+      });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+    document.querySelectorAll("section:not(.hero)").forEach(section => {
+      observer.observe(section);
+    });
+  </script>
+  <script type="module" src="js/submitProof.js"></script>
+</body>
+</html>
