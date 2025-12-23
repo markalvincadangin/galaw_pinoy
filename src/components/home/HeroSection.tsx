@@ -114,21 +114,15 @@ export default function HeroSection() {
         </motion.h1>
 
         {/* Tagline */}
-        <motion.div
-          className="mb-8"
+        <motion.p
+          className="text-2xl md:text-3xl lg:text-4xl font-display font-bold italic text-white/95 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
         >
-          <p className="text-2xl md:text-3xl lg:text-4xl font-display font-bold italic text-white/95 mb-2">
-            <span className="text-brand-blue">Galaw</span>{' '}
-            <span className="text-brand-yellow">Katawan.</span>
-          </p>
-          <p className="text-2xl md:text-3xl lg:text-4xl font-display font-bold italic text-white/95">
-            <span className="text-brand-red">Buhay</span>{' '}
-            <span className="text-brand-yellow">Kultura.</span>
-          </p>
-        </motion.div>
+          <span className="text-brand-red">Buhay</span>{' '}
+          <span className="text-brand-yellow">Kultura.</span>
+        </motion.p>
 
         {/* Subheadline */}
         <motion.p
@@ -138,7 +132,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
           style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)' }}
         >
-          Reviving Laro ng Lahi for Health & Fitness
+          Transform traditional Filipino games into interactive physical activities using modern web technology.
         </motion.p>
 
         {/* CTA Button */}

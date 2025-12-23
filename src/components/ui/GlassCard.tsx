@@ -48,13 +48,13 @@ export default function GlassCard({
   };
 
   return (
-    <motion.div
-      className={clsx(
-        'backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl',
-        'transition-all duration-300',
-        onClick && 'cursor-pointer',
-        className
-      )}
+            <motion.div
+              className={clsx(
+                'backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl',
+                'transition-all duration-300',
+                onClick && 'cursor-pointer',
+                className
+              )}
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

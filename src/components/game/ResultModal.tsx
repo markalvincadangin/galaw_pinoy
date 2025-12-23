@@ -46,7 +46,7 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
     try {
       // Capture the card element as an image
       const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: '#ffffff',
+        backgroundColor: '#0F172A', // brand-dark
         scale: 2, // Higher quality
         logging: false,
         useCORS: true,
@@ -153,33 +153,33 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
           {/* Card Container - This is what gets captured */}
           <div
             ref={cardRef}
-            className="bg-gradient-to-br from-blue-50 to-white border-4 border-blue-600 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            className="bg-gradient-to-br from-brand-dark via-brand-dark to-slate-900 border-4 border-brand-blue rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             style={{ width: '400px', minHeight: '600px' }}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white py-6 px-6 text-center flex-shrink-0">
-              <h2 className="text-2xl font-bold tracking-wide">Galaw Pinoy Champion</h2>
+            <div className="bg-gradient-to-r from-brand-blue to-blue-600 text-white py-6 px-6 text-center flex-shrink-0">
+              <h2 className="text-2xl font-display font-bold tracking-wide uppercase">Galaw Pinoy Champion</h2>
             </div>
 
             {/* Body */}
-            <div className="flex flex-col items-center justify-center flex-1 py-12 px-6">
+            <div className="flex flex-col items-center justify-center flex-1 py-12 px-6 bg-brand-dark">
               {/* Score */}
               <div className="mb-8 text-center">
-                <div className="text-7xl font-bold text-blue-600 mb-2 leading-none">{score}</div>
-                <div className="text-lg text-neutral-600">Points</div>
+                <div className="text-7xl font-display font-black text-brand-yellow mb-2 leading-none drop-shadow-lg">{score}</div>
+                <div className="text-lg text-white/80 font-body">Points</div>
               </div>
 
               {/* Calories */}
-              <div className="bg-blue-50 rounded-xl p-6 w-full max-w-xs border-2 border-blue-100 mb-6">
+              <div className="glass-modern rounded-xl p-6 w-full max-w-xs border-2 border-white/10 mb-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">{calories}</div>
-                  <div className="text-base text-neutral-700 font-medium">Calories Burned</div>
+                  <div className="text-3xl font-display font-bold text-brand-red mb-2 drop-shadow-md">{calories}</div>
+                  <div className="text-base text-white/80 font-body font-medium">Calories Burned</div>
                 </div>
               </div>
 
               {/* Reflection Input */}
               <form onSubmit={handleReflectionSubmit} className="w-full max-w-xs">
-                <label htmlFor="reflection" className="block text-sm font-medium text-neutral-700 mb-2">
+                <label htmlFor="reflection" className="block text-sm font-medium text-white/95 mb-2 font-body">
                   One word to describe this workout?
                 </label>
                 <div className="flex gap-2">
@@ -192,13 +192,13 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
                     onKeyDown={handleKeyDown}
                     placeholder="e.g., Energizing, Fun, Challenging..."
                     disabled={isSubmittingReflection}
-                    className="flex-1 px-4 py-2 border-2 border-neutral-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:bg-neutral-100 disabled:cursor-not-allowed text-neutral-900"
+                    className="flex-1 px-4 py-2 bg-white/10 border-2 border-white/20 rounded-lg focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/50 disabled:bg-white/5 disabled:cursor-not-allowed text-white placeholder:text-white/50 font-body"
                     maxLength={50}
                   />
                   <button
                     type="submit"
                     disabled={!reflection.trim() || isSubmittingReflection}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold rounded-lg transition-colors disabled:cursor-not-allowed flex items-center justify-center min-w-[80px]"
+                    className="px-4 py-2 bg-brand-blue hover:bg-blue-600 disabled:bg-blue-400 text-white font-semibold font-display uppercase tracking-wide rounded-lg transition-colors disabled:cursor-not-allowed flex items-center justify-center min-w-[80px]"
                   >
                     {isSubmittingReflection ? (
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -207,15 +207,15 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
                     )}
                   </button>
                 </div>
-                <p className="text-xs text-neutral-500 mt-1">Press Enter to submit</p>
+                <p className="text-xs text-white/60 mt-1 font-body">Press Enter to submit</p>
               </form>
             </div>
 
             {/* Footer */}
-            <div className="bg-neutral-100 border-t-2 border-neutral-200 py-4 px-6 text-center flex-shrink-0">
-              <p className="text-sm text-neutral-600 font-medium">
+            <div className="bg-white/5 border-t-2 border-white/10 py-4 px-6 text-center flex-shrink-0">
+              <p className="text-sm text-white/80 font-body font-medium">
                 Beat my score at{' '}
-                <span className="text-blue-600 font-semibold">galaw-pinoy.vercel.app</span>
+                <span className="text-brand-yellow font-semibold">galaw-pinoy.vercel.app</span>
               </p>
             </div>
           </div>
@@ -225,7 +225,7 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
             <button
               onClick={handleShare}
               disabled={isSharing}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-8 py-3 bg-brand-blue hover:bg-blue-600 disabled:bg-blue-400 text-white font-semibold font-display uppercase tracking-wide rounded-full shadow-lg hover:shadow-xl transition-all duration-200 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSharing ? (
                 <>
@@ -250,7 +250,7 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
             {onClose && (
               <button
                 onClick={onClose}
-                className="px-8 py-3 bg-neutral-200 hover:bg-neutral-300 text-neutral-700 font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold font-display uppercase tracking-wide rounded-full shadow-lg hover:shadow-xl transition-all duration-200 border border-white/20"
               >
                 Close
               </button>

@@ -44,7 +44,7 @@ export default function GameCard({
     <div
       onClick={onClick}
       className={clsx(
-        'glass-panel rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl',
+        'glass-panel rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl',
         className
       )}
     >
