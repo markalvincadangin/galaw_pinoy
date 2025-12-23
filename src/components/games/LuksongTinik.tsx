@@ -368,9 +368,17 @@ export default function LuksongTinik(): React.ReactElement {
       {/* Game Screen */}
       {gameState !== 'idle' && gameState !== 'lobby' && (
         <section
-          className={`relative w-full h-screen overflow-hidden border-4 transition-colors duration-500 ${
+          className={`relative w-full h-screen overflow-hidden border-4 transition-colors duration-500 touch-none ${
             isFlashing ? 'border-yellow-400' : 'border-transparent'
           }`}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+          }}
         >
           {/* Camera Error UI */}
           {(error || poseDetectionError) && (
@@ -397,7 +405,7 @@ export default function LuksongTinik(): React.ReactElement {
           )}
 
           {/* Webcam Video */}
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full touch-none">
             <Webcam
               ref={webcamRef}
               audio={false}
@@ -405,6 +413,9 @@ export default function LuksongTinik(): React.ReactElement {
               className="w-full h-full object-cover"
               videoConstraints={{
                 facingMode: 'user',
+                width: { ideal: 1280, min: 640 },
+                height: { ideal: 720, min: 480 },
+                aspectRatio: { ideal: 16 / 9 },
               }}
               onUserMediaError={(err) => {
                 console.error('Webcam error:', err);

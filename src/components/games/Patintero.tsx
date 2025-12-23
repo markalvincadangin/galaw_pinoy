@@ -355,7 +355,17 @@ export default function Patintero(): React.ReactElement {
 
       {/* Game Screen */}
       {gameState !== 'idle' && gameState !== 'lobby' && (
-        <section className="relative w-full h-screen overflow-hidden">
+        <section
+          className="relative w-full h-screen overflow-hidden touch-none"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+          }}
+        >
           {/* Camera Error UI */}
           {error && (
             <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 text-white">
@@ -380,7 +390,7 @@ export default function Patintero(): React.ReactElement {
           )}
 
           {/* Webcam Video */}
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full touch-none">
             <Webcam
               ref={webcamRef}
               audio={false}
@@ -388,6 +398,9 @@ export default function Patintero(): React.ReactElement {
               className="w-full h-full object-cover"
               videoConstraints={{
                 facingMode: 'user',
+                width: { ideal: 1280, min: 640 },
+                height: { ideal: 720, min: 480 },
+                aspectRatio: { ideal: 16 / 9 },
               }}
               onUserMediaError={(err) => {
                 console.error('Webcam error:', err);

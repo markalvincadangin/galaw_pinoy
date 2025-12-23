@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Webcam from 'react-webcam';
+import { motion } from 'framer-motion';
 import { usePoseDetection } from '@/hooks/usePoseDetection';
 
 interface CalibrationCheckProps {
@@ -228,7 +229,7 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
   }
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-neutral-900">
+    <div className="relative w-full h-screen overflow-hidden bg-neutral-900 touch-none">
       {/* Webcam Video */}
       <Webcam
         ref={webcamRef}
@@ -237,16 +238,19 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
         className="w-full h-full object-cover"
         videoConstraints={{
           facingMode: 'user',
+          width: { ideal: 1280, min: 640 },
+          height: { ideal: 720, min: 480 },
+          aspectRatio: { ideal: 16 / 9 },
         }}
       />
 
       {/* Semi-transparent Silhouette Overlay */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <svg
-          width="60%"
-          height="90%"
+          width="70%"
+          height="85%"
+          className="opacity-30 md:opacity-40"
           viewBox="0 0 200 400"
-          className="opacity-30"
           preserveAspectRatio="xMidYMid meet"
         >
           {/* Head */}
@@ -317,40 +321,45 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
         </svg>
       </div>
 
-      {/* Calibration Status Overlay */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <div className="glass-modern rounded-2xl px-8 py-6 text-center">
+      {/* Calibration Status Overlay - Mobile Optimized */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4">
+        <div className="glass-modern rounded-2xl md:rounded-3xl px-6 py-5 md:px-8 md:py-6 text-center max-w-[90vw] md:max-w-md">
           {isLoading ? (
             <div className="text-white">
-              <p className="text-lg md:text-xl font-display font-semibold mb-2 drop-shadow-md">
+              <p className="text-base sm:text-lg md:text-xl font-display font-semibold mb-3 md:mb-2 drop-shadow-md">
                 Loading camera...
               </p>
-              <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto" />
+              <div className="w-8 h-8 md:w-10 md:h-10 border-4 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto" />
             </div>
           ) : (
             <>
-              <p className="text-2xl md:text-3xl font-display font-bold text-white mb-2 drop-shadow-lg">
+              <p className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-white mb-3 md:mb-2 drop-shadow-lg leading-tight">
                 {calibrationMessage || 'Position yourself in frame'}
               </p>
               {showProgress && calibrationMessage === 'Hold still...' && (
-                <div className="mt-4">
-                  <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div className="mt-4 md:mt-4">
+                  <div className="w-full max-w-xs md:w-64 h-3 md:h-2 bg-white/10 rounded-full overflow-hidden mx-auto">
                     <div
-                      className="h-full bg-brand-blue transition-all duration-100"
+                      className="h-full bg-gradient-to-r from-brand-blue to-brand-blue/80 transition-all duration-100 rounded-full"
                       style={{
                         width: `${Math.min(Math.max(progress, 0), 100)}%`,
                       }}
                     />
                   </div>
-                  <p className="text-sm text-white/80 mt-2 font-body drop-shadow-sm">
-                    {remainingSeconds} seconds
+                  <p className="text-sm md:text-base text-white/90 mt-3 md:mt-2 font-display font-semibold drop-shadow-md">
+                    {remainingSeconds} {remainingSeconds === 1 ? 'second' : 'seconds'}
                   </p>
                 </div>
               )}
               {calibrationMessage === 'Calibrated!' && (
-                <p className="text-brand-yellow text-sm md:text-base mt-2 font-display font-semibold drop-shadow-md">
+                <motion.p
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 300 }}
+                  className="text-brand-yellow text-base md:text-lg mt-3 md:mt-2 font-display font-bold drop-shadow-md"
+                >
                   ✓ Ready to play!
-                </p>
+                </motion.p>
               )}
             </>
           )}
