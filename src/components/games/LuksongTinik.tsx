@@ -17,7 +17,7 @@ const INITIAL_HURDLE_Y = 0.8; // 80% from top (normalized)
 export default function LuksongTinik(): React.ReactElement {
   const webcamRef = useRef<Webcam>(null);
   const { landmarks, isLoading, error, isDetecting } = usePoseDetection(webcamRef);
-  const { playJump, playScore, playGameOver } = useGameSound();
+  const { playJump, playScore, playGameOver, toggleMusic, isMusicPlaying } = useGameSound();
 
   // Game state
   const [gameState, setGameState] = useState<GameState>('idle');
@@ -102,7 +102,11 @@ export default function LuksongTinik(): React.ReactElement {
     setIsJumping(false);
     setPoseDetectionError(null);
     prevScoreRef.current = 0; // Reset score tracking
-  }, []);
+    // Stop background music when game resets
+    if (isMusicPlaying) {
+      toggleMusic();
+    }
+  }, [isMusicPlaying, toggleMusic]);
 
   // Handle calibration complete
   const handleCalibrated = useCallback(() => {
@@ -110,7 +114,7 @@ export default function LuksongTinik(): React.ReactElement {
   }, []);
 
   // End game (defined first since it's used by other callbacks)
-  const endGame = useCallback(async () => {
+  const endGame = useCallback(() => {
     // Stop all intervals FIRST to prevent race conditions
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
@@ -136,20 +140,28 @@ export default function LuksongTinik(): React.ReactElement {
     setFinalScore(finalScoreValue);
     setFinalCalories(calories);
 
+    // Stop background music when game ends
+    if (isMusicPlaying) {
+      toggleMusic();
+    }
+
     // Play game over sound
     playGameOver();
 
-    // Save game result immediately when game ends
-    try {
-      await saveGameResult('luksong-tinik', finalScoreValue, calories);
-    } catch (error) {
-      console.error('Failed to save game result:', error);
-      // Don't block UI if save fails
-    }
+    // Defer saveGameResult to avoid calling server action during render
+    // This prevents the "Cannot update component while rendering" error
+    setTimeout(async () => {
+      try {
+        await saveGameResult('luksong-tinik', finalScoreValue, calories);
+      } catch (error) {
+        console.error('Failed to save game result:', error);
+        // Don't block UI if save fails
+      }
+    }, 0);
 
     // Show result modal
     setShowResultModal(true);
-  }, [playGameOver]);
+  }, [playGameOver, isMusicPlaying, toggleMusic]);
 
   // Start game timer
   const startGameTimer = useCallback(() => {
@@ -180,7 +192,11 @@ export default function LuksongTinik(): React.ReactElement {
     setGameState('playing');
     setCooldown(false);
     startGameTimer();
-  }, [startGameTimer]);
+    // Start background music when gameplay begins
+    if (!isMusicPlaying) {
+      toggleMusic();
+    }
+  }, [startGameTimer, isMusicPlaying, toggleMusic]);
 
   // Start countdown
   const startCountdown = useCallback(() => {

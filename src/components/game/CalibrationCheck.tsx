@@ -10,10 +10,10 @@ interface CalibrationCheckProps {
 }
 
 // Pixel distance thresholds for calibration
-const MIN_ANKLE_DISTANCE_PX = 50; // Minimum distance in pixels (user too far)
-const MAX_ANKLE_DISTANCE_PX = 300; // Maximum distance in pixels (user too close)
-const MIN_VISIBILITY_SCORE = 0.8; // Minimum visibility score for key landmarks
-const CALIBRATION_DURATION = 3000; // 3 seconds in milliseconds
+const MIN_ANKLE_DISTANCE_PX = 30; // Minimum distance in pixels (user too far) - relaxed from 50
+const MAX_ANKLE_DISTANCE_PX = 400; // Maximum distance in pixels (user too close) - relaxed from 300
+const MIN_VISIBILITY_SCORE = 0.6; // Minimum visibility score for key landmarks - relaxed from 0.8
+const CALIBRATION_DURATION = 1500; // 1.5 seconds in milliseconds - reduced from 3 seconds
 
 export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps) {
   const webcamRef = useRef<Webcam>(null);
@@ -21,7 +21,7 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
   const [calibrationMessage, setCalibrationMessage] = useState<string>('');
   const [isCalibrated, setIsCalibrated] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [remainingSeconds, setRemainingSeconds] = useState(3);
+  const [remainingSeconds, setRemainingSeconds] = useState(2);
   const [showProgress, setShowProgress] = useState(false);
   const calibrationTimerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -93,7 +93,7 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
       startTimeRef.current = null;
       setProgress(0);
       setShowProgress(false);
-      setRemainingSeconds(3);
+      setRemainingSeconds(2);
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = null;
@@ -198,10 +198,10 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
             // Small delay before calling onCalibrated to show success message
             calibrationTimerRef.current = setTimeout(() => {
               onCalibrated();
-            }, 500);
+            }, 300); // Reduced from 500ms for faster transition
           }
         }
-      }, 50); // Update every 50ms for smooth progress
+      }, 30); // Update every 30ms for smoother progress (reduced from 50ms)
     }
   }, [landmarks, isLoading, error, isCalibrated, onCalibrated]);
 
