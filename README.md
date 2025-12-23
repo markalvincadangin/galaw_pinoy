@@ -1,67 +1,36 @@
-# Galaw Pinoy - Physical Education Website
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A digital advocacy platform that promotes health and fitness by transforming traditional Filipino games (Laro ng Lahi) into interactive physical activities using modern web technology.
+## Getting Started
 
-## Features
+First, run the development server:
 
-- **Interactive Games**: Virtual versions of traditional Filipino games using webcam-based motion detection
-  - Virtual Luksong Tinik (flexibility and coordination)
-  - Virtual Patintero (agility and reaction time)
-- **Educational Content**: Information about traditional Filipino games and their health benefits
-- **Reflection System**: Users can submit reflections about their fitness journey
-- **Admin Dashboard**: For viewing submitted reflections
-- **Responsive Design**: Works on desktop and mobile devices
-
-## Technology Stack
-
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Pose Detection**: TensorFlow.js with MoveNet model
-- **Backend**: Firebase Firestore for data storage
-- **Styling**: Custom CSS with modern design system
-
-## Project Structure
-
-```
-├── index.html              # Home page
-├── about.html              # About the advocacy
-├── play.html               # Game selection page
-├── laro.html               # Traditional games overview
-├── health.html             # Health benefits
-├── proof.html              # Documentation
-├── join.html               # Reflection submission
-├── admin/dashboard.html    # Admin panel
-├── css/style.css           # Main stylesheet
-├── js/
-│   ├── firebase.js         # Firebase configuration
-│   ├── luksong-tinik.js    # Virtual Luksong Tinik game
-│   ├── patintero.js        # Virtual Patintero game
-│   ├── submitProof.js      # Reflection submission
-│   └── admin.js            # Admin dashboard logic
-└── firebase.json           # Firebase hosting config
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## Setup Instructions
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-1. **Clone the repository**
-2. **Install Firebase CLI** (if deploying):
-   ```bash
-   npm install -g firebase-tools
-   ```
-3. **Configure Firebase**:
-   - Create a Firebase project
-   - Enable Firestore database
-   - Update `js/firebase.js` with your project configuration
-4. **Deploy** (optional):
-   ```bash
-   firebase login
-   firebase init
-   firebase deploy
-   ```
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## How It Works
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-The website uses computer vision through TensorFlow.js and the MoveNet pose detection model to track user movements via webcam. This allows for interactive gameplay that encourages physical activity while preserving cultural heritage.
+## Learn More
 
-## Educational Impact
+To learn more about Next.js, take a look at the following resources:
 
-This project serves as a bridge between traditional Filipino culture and modern technology, encouraging youth to engage in physical activity through culturally relevant games.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
