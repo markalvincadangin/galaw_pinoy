@@ -31,7 +31,7 @@ const BLOCKER_SPEED = 2; // pixels per frame (or percentage per frame)
 export default function Patintero(): React.ReactElement {
   const webcamRef = useRef<Webcam>(null);
   const { landmarks, isLoading, error, isDetecting } = usePoseDetection(webcamRef);
-  const { playGameOver } = useGameSound();
+  const { playGameOver, toggleMusic, isMusicPlaying } = useGameSound();
 
   // Game state
   const [gameState, setGameState] = useState<GameState>('idle');
@@ -98,7 +98,11 @@ export default function Patintero(): React.ReactElement {
     setCurrentLane(null);
     spawnIntervalRef.current = INITIAL_SPAWN_INTERVAL;
     setShowResultModal(false);
-  }, []);
+    // Stop background music when game resets
+    if (isMusicPlaying) {
+      toggleMusic();
+    }
+  }, [isMusicPlaying, toggleMusic]);
 
   // Handle calibration complete
   const handleCalibrated = useCallback(() => {
@@ -142,12 +146,17 @@ export default function Patintero(): React.ReactElement {
     setFinalScore(score);
     setFinalCalories(calories);
 
+    // Stop background music when game ends
+    if (isMusicPlaying) {
+      toggleMusic();
+    }
+
     // Play game over sound
     playGameOver();
 
     // Show result modal
     setShowResultModal(true);
-  }, [elapsedTime, playGameOver]);
+  }, [elapsedTime, playGameOver, isMusicPlaying, toggleMusic]);
 
   // Animate blockers downward
   const animateBlockers = useCallback(() => {
@@ -230,6 +239,10 @@ export default function Patintero(): React.ReactElement {
   const startCountdown = useCallback(() => {
     setGameState('countdown');
     setCountdown(5);
+    // Start background music during countdown for better anticipation
+    if (!isMusicPlaying) {
+      toggleMusic();
+    }
 
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
@@ -243,7 +256,7 @@ export default function Patintero(): React.ReactElement {
         return prev - 1;
       });
     }, 1000);
-  }, [beginPlaying]);
+  }, [beginPlaying, isMusicPlaying, toggleMusic]);
 
   // Wait for full body detection
   useEffect(() => {
