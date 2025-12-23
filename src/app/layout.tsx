@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -17,6 +17,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Galaw Pinoy | Move Your Body. Rediscover Filipino Culture.",
   description: "A digital advocacy that promotes health and fitness by transforming traditional Filipino games into interactive physical activities using modern web technology.",
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
