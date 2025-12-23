@@ -319,34 +319,38 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
 
       {/* Calibration Status Overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <div className="bg-black/70 backdrop-blur-sm rounded-2xl px-8 py-6 text-center">
+        <div className="glass-modern rounded-2xl px-8 py-6 text-center">
           {isLoading ? (
             <div className="text-white">
-              <p className="text-lg font-medium mb-2">Loading camera...</p>
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="text-lg md:text-xl font-display font-semibold mb-2 drop-shadow-md">
+                Loading camera...
+              </p>
+              <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto" />
             </div>
           ) : (
             <>
-              <p className="text-2xl font-bold text-white mb-2">
+              <p className="text-2xl md:text-3xl font-display font-bold text-white mb-2 drop-shadow-lg">
                 {calibrationMessage || 'Position yourself in frame'}
               </p>
               {showProgress && calibrationMessage === 'Hold still...' && (
                 <div className="mt-4">
-                  <div className="w-64 h-2 bg-neutral-700 rounded-full overflow-hidden">
+                  <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 transition-all duration-100"
+                      className="h-full bg-brand-blue transition-all duration-100"
                       style={{
                         width: `${Math.min(Math.max(progress, 0), 100)}%`,
                       }}
                     />
                   </div>
-                  <p className="text-sm text-neutral-300 mt-2">
+                  <p className="text-sm text-white/80 mt-2 font-body drop-shadow-sm">
                     {remainingSeconds} seconds
                   </p>
                 </div>
               )}
               {calibrationMessage === 'Calibrated!' && (
-                <p className="text-green-400 text-sm mt-2">✓ Ready to play!</p>
+                <p className="text-brand-yellow text-sm md:text-base mt-2 font-display font-semibold drop-shadow-md">
+                  ✓ Ready to play!
+                </p>
               )}
             </>
           )}

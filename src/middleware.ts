@@ -60,10 +60,10 @@ export async function middleware(request: NextRequest) {
   const publicAuthRoutes = ['/login'];
   const isPublicAuthRoute = publicAuthRoutes.includes(pathname);
 
-  // Admin email check (you can move this to an env variable)
-  const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',') || [];
-  const isAdmin =
-    session?.user?.email && ADMIN_EMAILS.includes(session.user.email);
+  // Admin email check - trim whitespace and make case-insensitive
+  const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || [];
+  const userEmail = session?.user?.email?.toLowerCase().trim();
+  const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
 
   // Redirect logic for protected routes
   if (isProtectedRoute && !session) {

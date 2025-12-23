@@ -359,15 +359,19 @@ export default function Patintero(): React.ReactElement {
           {/* Camera Error UI */}
           {error && (
             <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 text-white">
-              <div className="text-center p-8">
-                <p className="text-xl font-bold mb-4">Camera Error</p>
-                <p className="text-sm text-neutral-300 mb-6">{error}</p>
+              <div className="text-center p-8 glass-modern rounded-3xl max-w-md mx-4">
+                <p className="text-xl md:text-2xl font-display font-bold mb-4 text-white drop-shadow-lg">
+                  Camera Error
+                </p>
+                <p className="text-sm md:text-base text-white/80 mb-6 font-body drop-shadow-md">
+                  {error}
+                </p>
                 <button
                   onClick={() => {
                     setGameState('idle');
                     window.location.reload();
                   }}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors"
+                  className="px-6 py-3 bg-brand-blue hover:bg-blue-600 rounded-full text-sm font-semibold font-display uppercase tracking-wide transition-colors shadow-lg hover:shadow-xl"
                 >
                   Reload Page
                 </button>
