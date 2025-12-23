@@ -1,6 +1,5 @@
 import { db } from "../js/firebase.js";
-import { getDocs, collection } from
-"https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getDocs, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const list = document.getElementById("reflectionList");
 

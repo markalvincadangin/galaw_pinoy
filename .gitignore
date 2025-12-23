@@ -67,3 +67,39 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Local environment and secrets
+.env.local
+.env.*.local
+serviceAccountKey.json
+
+# Netlify
+.netlify/
+
+# Local cursor/IDE state
+.cursor/
+
+# Build output
+dist/
+build/
+public/
+
+# Temporary
+tmp/
+temp/
+
+# Keep node_modules and .firebase cache already listed above
+
+# End of file
