@@ -29,7 +29,7 @@ export function Toast({ message, type = 'success', duration = 3000, onClose }: T
 
   return (
     <div
-      className={`fixed top-4 right-4 z-[100] ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 ${
+      className={`fixed top-4 right-2 sm:right-4 z-[100] ${bgColor} text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-lg transition-all duration-300 text-sm sm:text-base max-w-[calc(100vw-1rem)] sm:max-w-none ${
         isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
       }`}
     >

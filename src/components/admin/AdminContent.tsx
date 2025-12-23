@@ -1,0 +1,89 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
+interface Reflection {
+  id: string;
+  content: string;
+  createdAt: string | null; // ISO string from server
+}
+
+interface AdminContentProps {
+  reflectionsData: Reflection[];
+}
+
+export default function AdminContent({ reflectionsData }: AdminContentProps) {
+  return (
+    <main className="pt-16 min-h-screen bg-brand-dark text-white">
+      <section className="py-16 px-6 md:px-8 max-w-7xl mx-auto">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-3xl md:text-4xl font-display font-bold text-white mb-8 drop-shadow-lg"
+        >
+          Submitted Reflections
+        </motion.h1>
+
+        {reflectionsData.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="glass-modern rounded-3xl p-8 md:p-12 cultural-texture text-center"
+          >
+            <p className="text-lg md:text-xl text-white/95 font-body drop-shadow-md">
+              No reflections submitted yet.
+            </p>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="glass-modern rounded-3xl overflow-hidden cultural-texture shadow-xl"
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead className="bg-white/5 border-b border-white/10">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-white font-display">
+                      Timestamp
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-white font-display">
+                      Content
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {reflectionsData.map((reflection) => (
+                    <tr
+                      key={reflection.id}
+                      className="hover:bg-white/5 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-sm text-white/80 whitespace-nowrap font-body">
+                        {reflection.createdAt
+                          ? new Date(reflection.createdAt).toLocaleString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-white/95 font-body">
+                        {reflection.content}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        )}
+      </section>
+    </main>
+  );
+}
+

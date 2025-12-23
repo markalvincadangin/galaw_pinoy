@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import KineticButton from '@/components/ui/KineticButton';
 
 export default function AuthButton() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -64,33 +65,39 @@ export default function AuthButton() {
 
   if (isLoading) {
     return (
-      <button
+      <KineticButton
+        variant="primary"
+        size="md"
         disabled
-        className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 rounded-xl cursor-not-allowed"
+        className="min-w-[200px]"
       >
         Loading...
-      </button>
+      </KineticButton>
     );
   }
 
   if (isLoggedIn) {
     return (
-      <button
+      <KineticButton
+        variant="danger"
+        size="md"
         onClick={handleSignOut}
-        className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl shadow-md hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 active:translate-y-0"
+        className="min-w-[200px]"
       >
         Sign Out
-      </button>
+      </KineticButton>
     );
   }
 
   return (
-    <button
+    <KineticButton
+      variant="primary"
+      size="md"
       onClick={handleSignIn}
-      className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl shadow-md hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 active:translate-y-0"
+      className="min-w-[200px]"
     >
       Login with Google
-    </button>
+    </KineticButton>
   );
 }
 
