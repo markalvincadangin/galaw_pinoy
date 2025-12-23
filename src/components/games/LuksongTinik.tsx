@@ -192,16 +192,16 @@ export default function LuksongTinik(): React.ReactElement {
     setGameState('playing');
     setCooldown(false);
     startGameTimer();
-    // Start background music when gameplay begins
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
-  }, [startGameTimer, isMusicPlaying, toggleMusic]);
+  }, [startGameTimer]);
 
   // Start countdown
   const startCountdown = useCallback(() => {
     setGameState('countdown');
     setCountdown(3);
+    // Start background music during countdown for better anticipation
+    if (!isMusicPlaying) {
+      toggleMusic();
+    }
 
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
@@ -215,7 +215,7 @@ export default function LuksongTinik(): React.ReactElement {
         return prev - 1;
       });
     }, 1000);
-  }, [startLevel]);
+  }, [startLevel, isMusicPlaying, toggleMusic]);
 
   // Level clear
   const levelClear = useCallback(() => {

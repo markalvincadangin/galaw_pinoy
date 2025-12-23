@@ -233,16 +233,16 @@ export default function Patintero(): React.ReactElement {
     startTimer();
     spawnBlockers();
     animateBlockers();
-    // Start background music when gameplay begins
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
-  }, [startTimer, spawnBlockers, animateBlockers, isMusicPlaying, toggleMusic]);
+  }, [startTimer, spawnBlockers, animateBlockers]);
 
   // Start countdown
   const startCountdown = useCallback(() => {
     setGameState('countdown');
     setCountdown(5);
+    // Start background music during countdown for better anticipation
+    if (!isMusicPlaying) {
+      toggleMusic();
+    }
 
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
@@ -256,7 +256,7 @@ export default function Patintero(): React.ReactElement {
         return prev - 1;
       });
     }, 1000);
-  }, [beginPlaying]);
+  }, [beginPlaying, isMusicPlaying, toggleMusic]);
 
   // Wait for full body detection
   useEffect(() => {
