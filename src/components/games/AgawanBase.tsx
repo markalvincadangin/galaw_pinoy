@@ -73,6 +73,11 @@ export default function AgawanBase(): React.ReactElement {
 
   // End game (declared first since it's used by other callbacks)
   const endGame = useCallback(() => {
+    // Prevent multiple calls to endGame
+    if (gameState === 'over') {
+      return;
+    }
+
     setGameState('over');
     
     // Clear intervals
@@ -110,7 +115,7 @@ export default function AgawanBase(): React.ReactElement {
 
     // Show result modal
     setShowResultModal(true);
-  }, [score, timeElapsed, playerPosition, playGameOver, isMusicPlaying, toggleMusic]);
+  }, [score, timeElapsed, playerPosition, playGameOver, isMusicPlaying, toggleMusic, gameState]);
 
   // Begin playing
   const beginPlaying = useCallback(() => {
@@ -144,7 +149,7 @@ export default function AgawanBase(): React.ReactElement {
     if (!isMusicPlaying) {
       toggleMusic();
     }
-  }, [isMusicPlaying, toggleMusic, showTutorial, endGame]);
+  }, [isMusicPlaying, toggleMusic, showTutorial, endGame, gameState]);
 
   // Start countdown
   const startCountdown = useCallback(() => {
@@ -239,7 +244,7 @@ export default function AgawanBase(): React.ReactElement {
 
     previousLeftKneeYRef.current = leftKnee.y;
     previousRightKneeYRef.current = rightKnee.y;
-  }, [gameState, landmarks, triggerFeedback, playJump, showTutorial, endGame]);
+  }, [gameState, landmarks, isLoading, triggerFeedback, playJump, showTutorial, endGame]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -405,7 +410,8 @@ export default function AgawanBase(): React.ReactElement {
             score={score}
             timer={timeElapsed}
             distance={playerPosition}
-            showPoseWarning={!isDetecting && gameState === 'playing'}
+            showPoseWarning={!isDetecting && gameState === 'playing' && !showResultModal}
+            gameState={gameState}
           />
 
           {/* Action Button */}

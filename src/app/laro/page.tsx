@@ -90,15 +90,15 @@ export default function Laro() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="glass-modern rounded-3xl p-6 md:p-8 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                  className="glass-modern rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group h-full flex flex-col"
                 >
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                    <Icon className="w-7 h-7 text-white" />
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center mb-4 sm:mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 flex-shrink-0`}>
+                    <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                   </div>
-                  <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-3 drop-shadow-md">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-display font-bold text-white mb-2 sm:mb-3 drop-shadow-md">
                     {game.name}
                   </h3>
-                  <p className="text-base md:text-lg text-white/90 m-0 leading-relaxed font-body">
+                  <p className="text-sm sm:text-base md:text-lg text-white/90 m-0 leading-relaxed font-body flex-1">
                     {game.description}
                   </p>
                 </motion.div>

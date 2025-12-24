@@ -147,33 +147,33 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
         />
       )}
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
         {/* Trading Card */}
         <div className="relative">
           {/* Card Container - This is what gets captured */}
           <div
             ref={cardRef}
-            className="bg-gradient-to-br from-brand-dark via-brand-dark to-slate-900 border-4 border-brand-blue rounded-2xl shadow-2xl overflow-hidden flex flex-col"
-            style={{ width: '400px', minHeight: '600px' }}
+            className="bg-gradient-to-br from-brand-dark via-brand-dark to-slate-900 border-4 border-brand-blue rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            style={{ width: '100%', maxWidth: '400px', minHeight: '500px' }}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-brand-blue to-blue-600 text-white py-6 px-6 text-center flex-shrink-0">
-              <h2 className="text-2xl font-display font-bold tracking-wide uppercase">Galaw Pinoy Champion</h2>
+            <div className="bg-gradient-to-r from-brand-blue to-blue-600 text-white py-4 sm:py-6 px-4 sm:px-6 text-center flex-shrink-0">
+              <h2 className="text-xl sm:text-2xl font-display font-bold tracking-wide uppercase">Galaw Pinoy Champion</h2>
             </div>
 
             {/* Body */}
-            <div className="flex flex-col items-center justify-center flex-1 py-12 px-6 bg-brand-dark">
+            <div className="flex flex-col items-center justify-center flex-1 py-8 sm:py-12 px-4 sm:px-6 bg-brand-dark">
               {/* Score */}
-              <div className="mb-8 text-center">
-                <div className="text-7xl font-display font-black text-brand-yellow mb-2 leading-none drop-shadow-lg">{score}</div>
-                <div className="text-lg text-white/80 font-body">Points</div>
+              <div className="mb-6 sm:mb-8 text-center">
+                <div className="text-5xl sm:text-6xl md:text-7xl font-display font-black text-brand-yellow mb-2 leading-none drop-shadow-lg">{score}</div>
+                <div className="text-base sm:text-lg text-white/80 font-body">Points</div>
               </div>
 
               {/* Calories */}
-              <div className="glass-modern rounded-xl p-6 w-full max-w-xs border-2 border-white/10 mb-6">
+              <div className="glass-modern rounded-lg sm:rounded-xl p-4 sm:p-6 w-full max-w-xs border-2 border-white/10 mb-4 sm:mb-6">
                 <div className="text-center">
-                  <div className="text-3xl font-display font-bold text-brand-red mb-2 drop-shadow-md">{calories}</div>
-                  <div className="text-base text-white/80 font-body font-medium">Calories Burned</div>
+                  <div className="text-2xl sm:text-3xl font-display font-bold text-brand-red mb-2 drop-shadow-md">{calories}</div>
+                  <div className="text-sm sm:text-base text-white/80 font-body font-medium">Calories Burned</div>
                 </div>
               </div>
 
@@ -221,11 +221,11 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 mt-6 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 sm:mt-6 justify-center w-full max-w-[400px]">
             <button
               onClick={handleShare}
               disabled={isSharing}
-              className="px-8 py-3 bg-brand-blue hover:bg-blue-600 disabled:bg-blue-400 text-white font-semibold font-display uppercase tracking-wide rounded-full shadow-lg hover:shadow-xl transition-all duration-200 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 sm:px-8 py-2.5 sm:py-3 bg-brand-blue hover:bg-blue-600 disabled:bg-blue-400 text-white font-semibold font-display uppercase tracking-wide rounded-full shadow-lg hover:shadow-xl transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               {isSharing ? (
                 <>
@@ -250,7 +250,7 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
             {onClose && (
               <button
                 onClick={onClose}
-                className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold font-display uppercase tracking-wide rounded-full shadow-lg hover:shadow-xl transition-all duration-200 border border-white/20"
+                className="px-6 sm:px-8 py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white font-semibold font-display uppercase tracking-wide rounded-full shadow-lg hover:shadow-xl transition-all duration-200 border border-white/20 text-sm sm:text-base"
               >
                 Close
               </button>

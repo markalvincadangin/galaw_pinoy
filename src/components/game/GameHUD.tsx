@@ -37,6 +37,9 @@ interface GameHUDProps {
   hipVelocity?: number;
   kneeAngle?: number;
   
+  // Game state (to check if game is over and hide warnings)
+  gameState?: string;
+  
   // Custom content
   children?: React.ReactNode;
   
@@ -69,6 +72,7 @@ export default function GameHUD({
   warningMessage,
   hipVelocity,
   kneeAngle,
+  gameState,
   children,
   className,
 }: GameHUDProps): React.ReactElement {
@@ -89,12 +93,12 @@ export default function GameHUD({
       {children}
       
       {/* Main HUD - Desktop (Top Center) */}
-      <div className={`absolute top-4 left-1/2 transform -translate-x-1/2 z-50 hidden md:block ${className || ''}`}>
+      <div className={`absolute top-3 sm:top-4 left-1/2 transform -translate-x-1/2 z-50 hidden md:block ${className || ''}`}>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className={`glass-modern rounded-2xl px-6 py-4 shadow-2xl border-2 border-white/20 cultural-texture relative overflow-hidden ${
+          className={`glass-modern rounded-xl lg:rounded-2xl px-4 lg:px-6 py-3 lg:py-4 shadow-2xl border-2 border-white/20 cultural-texture relative overflow-hidden ${
             feverMode ? 'border-brand-yellow/50 shadow-[0_0_30px_rgba(251,191,36,0.3)]' : ''
           }`}
         >
@@ -128,12 +132,12 @@ export default function GameHUD({
             )}
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3 xl:gap-4">
               {/* Score */}
               {score !== undefined && (
                 <div className="flex flex-col items-center gap-1">
-                  <span className="text-xs font-display font-bold text-white/70 uppercase tracking-wider">Score</span>
-                  <span className="font-display text-3xl font-black text-brand-yellow drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]">
+                  <span className="text-[10px] lg:text-xs font-display font-bold text-white/70 uppercase tracking-wider">Score</span>
+                  <span className="font-display text-2xl lg:text-3xl font-black text-brand-yellow drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]">
                     {score}
                   </span>
                 </div>
@@ -142,8 +146,8 @@ export default function GameHUD({
               {/* Timer */}
               {timer !== undefined && (
                 <div className="flex flex-col items-center gap-1">
-                  <span className="text-xs font-display font-bold text-white/70 uppercase tracking-wider">Time</span>
-                  <span className="font-display text-3xl font-bold text-brand-blue drop-shadow-[0_0_10px_rgba(37,99,235,0.5)]">
+                  <span className="text-[10px] lg:text-xs font-display font-bold text-white/70 uppercase tracking-wider">Time</span>
+                  <span className="font-display text-2xl lg:text-3xl font-bold text-brand-blue drop-shadow-[0_0_10px_rgba(37,99,235,0.5)]">
                     {formatTimer(timer)}
                   </span>
                 </div>
@@ -152,8 +156,8 @@ export default function GameHUD({
               {/* Level */}
               {level !== undefined && (
                 <div className="flex flex-col items-center gap-1">
-                  <span className="text-xs font-display font-bold text-white/70 uppercase tracking-wider">Level</span>
-                  <span className="font-display text-3xl font-bold text-brand-red drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]">
+                  <span className="text-[10px] lg:text-xs font-display font-bold text-white/70 uppercase tracking-wider">Level</span>
+                  <span className="font-display text-2xl lg:text-3xl font-bold text-brand-red drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]">
                     {level}
                   </span>
                 </div>
@@ -280,7 +284,8 @@ export default function GameHUD({
             )}
 
             {/* Warning Message */}
-            {(showPoseWarning || warningMessage) && (
+            {/* Only show warning if game is not over - don't block result modal */}
+            {(showPoseWarning || warningMessage) && gameState !== 'over' && gameState !== 'idle' && (
               <div className="mt-3 pt-3 border-t border-white/10">
                 <p className="text-sm text-brand-yellow text-center animate-pulse">
                   {warningMessage || "No pose detected. Make sure you're visible!"}

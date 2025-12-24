@@ -39,13 +39,13 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="glass-modern rounded-3xl p-8 md:p-12 cultural-texture"
+            className="glass-modern rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 cultural-texture"
           >
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-6 drop-shadow-lg">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-4 sm:mb-6 drop-shadow-lg">
               Why This Advocacy Was Chosen
             </h2>
-            <ul className="list-none m-0 p-0 space-y-4">
-              <li className="text-lg md:text-xl text-white/95 font-body flex items-start gap-3">
+            <ul className="list-none m-0 p-0 space-y-3 sm:space-y-4">
+              <li className="text-base sm:text-lg md:text-xl text-white/95 font-body flex items-start gap-3">
                 <span className="text-brand-yellow text-2xl font-bold">•</span>
                 <span>Physical inactivity among youth is increasing</span>
               </li>
@@ -72,11 +72,11 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-display font-bold leading-tight tracking-tight text-white text-center mb-12 drop-shadow-lg"
+            className="text-3xl sm:text-4xl md:text-5xl font-display font-bold leading-tight tracking-tight text-white text-center mb-8 sm:mb-10 md:mb-12 drop-shadow-lg"
           >
             Advocacy Objectives
           </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}

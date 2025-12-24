@@ -300,7 +300,7 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
     }, 300);
   };
 
-  // Cleanup on unmount
+  // Cleanup on unmount - stop webcam stream to release camera resource
   useEffect(() => {
     return () => {
       if (calibrationTimerRef.current) {
@@ -311,6 +311,16 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
       }
       if (skipTimeoutRef.current) {
         clearTimeout(skipTimeoutRef.current);
+      }
+      
+      // Explicitly stop webcam stream to release camera resource
+      // This prevents camera lock conflicts when transitioning to game component
+      if (webcamRef.current?.video?.srcObject) {
+        const stream = webcamRef.current.video.srcObject as MediaStream;
+        stream.getTracks().forEach((track) => {
+          track.stop();
+        });
+        webcamRef.current.video.srcObject = null;
       }
     };
   }, []);

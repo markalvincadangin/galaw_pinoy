@@ -103,7 +103,7 @@ export default function LangitLupa(): React.ReactElement {
 
     // Show result modal
     setShowResultModal(true);
-  }, [score, playGameOver, isMusicPlaying, toggleMusic]);
+  }, [score, playGameOver, isMusicPlaying, toggleMusic, gameState]);
 
   // Handle miss/wrong pose
   const handleMiss = useCallback(() => {
@@ -277,7 +277,13 @@ export default function LangitLupa(): React.ReactElement {
       return;
     }
     
-    if (gameState !== 'playing' || !currentCommand || !landmarks) {
+    if (gameState !== 'playing' || !currentCommand) {
+      return;
+    }
+
+    // WAIT FOR POSE DETECTION TO INITIALIZE - This is critical!
+    // If still loading, pose detection is not ready yet - don't run game logic
+    if (isLoading || !landmarks) {
       return;
     }
 
@@ -286,7 +292,8 @@ export default function LangitLupa(): React.ReactElement {
     }
 
     checkIntervalRef.current = setInterval(() => {
-      if (!landmarks || !currentCommand) return;
+      // Re-check loading state inside interval
+      if (isLoading || !landmarks || !currentCommand) return;
 
       const nose = landmarks.nose;
       const isSquat = isSquatting(landmarks);
@@ -349,7 +356,7 @@ export default function LangitLupa(): React.ReactElement {
         clearInterval(checkIntervalRef.current);
       }
     };
-  }, [gameState, currentCommand, landmarks, userHeight, handleCorrect, showTutorial]);
+  }, [gameState, currentCommand, landmarks, isLoading, userHeight, handleCorrect, showTutorial]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -502,7 +509,8 @@ export default function LangitLupa(): React.ReactElement {
             score={score}
             level={level}
             reactionTime={reactionTime}
-            showPoseWarning={!isDetecting && gameState === 'playing'}
+            showPoseWarning={!isDetecting && gameState === 'playing' && !showResultModal}
+            gameState={gameState}
           />
         </motion.section>
       )}
