@@ -111,12 +111,6 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
       return;
     }
 
-    // Clear any existing timer
-    if (calibrationTimerRef.current) {
-      clearTimeout(calibrationTimerRef.current);
-      calibrationTimerRef.current = null;
-    }
-
     // Reset timer and progress if user moves out of position (only if movement is significant)
     const resetCalibration = (reason?: string) => {
       // Check if movement is significant before resetting
@@ -231,49 +225,44 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
       return;
     }
     
-    // Check for jittering (rapid small movements) - show message but don't block calibration
-    let isJittering = false;
-    if (previousLandmarksRef.current?.nose && landmarks.nose) {
+    // Check for significant movement that would reset calibration
+    // Only check if calibration has already started
+    if (startTimeRef.current !== null && previousLandmarksRef.current?.nose && landmarks.nose) {
       const movement = calculatePixelDistance(
         { x: landmarks.nose.x, y: landmarks.nose.y },
         { x: previousLandmarksRef.current.nose.x, y: previousLandmarksRef.current.nose.y }
       );
       
-      // If there's small but frequent movement, show jitter message
-      if (movement > 5 && movement < MOVEMENT_THRESHOLD_PX && startTimeRef.current !== null) {
-        isJittering = true;
-        setTimeout(() => {
-          setCalibrationMessage('Trying to focus...');
-        }, 0);
+      // If there's significant movement during calibration, reset it
+      if (movement > MOVEMENT_THRESHOLD_PX) {
+        resetCalibration('movement');
+        return;
       }
+      
+      // Small movement - just update landmarks and continue calibration
+      previousLandmarksRef.current = {
+        nose: { x: landmarks.nose.x, y: landmarks.nose.y },
+        leftAnkle: { x: landmarks.leftAnkle.x, y: landmarks.leftAnkle.y },
+        rightAnkle: { x: landmarks.rightAnkle.x, y: landmarks.rightAnkle.y },
+      };
+      return; // Don't restart timer if already running
     }
     
-    // Update previous landmarks for movement tracking (after checking jittering)
+    // Update previous landmarks for movement tracking
     previousLandmarksRef.current = {
       nose: { x: landmarks.nose.x, y: landmarks.nose.y },
       leftAnkle: { x: landmarks.leftAnkle.x, y: landmarks.leftAnkle.y },
       rightAnkle: { x: landmarks.rightAnkle.x, y: landmarks.rightAnkle.y },
     };
 
-    // User is in good position - start calibration timer
-    if (!isJittering) {
-      setTimeout(() => {
-        setCalibrationMessage('Hold still...');
-        setShowProgress(true);
-      }, 0);
-    }
-
-    // If we haven't started a timer yet, start one
-    if (startTimeRef.current === null) {
+    // User is in good position - start calibration timer (only if not already started)
+    if (startTimeRef.current === null && progressIntervalRef.current === null) {
       startTimeRef.current = Date.now();
-      setTimeout(() => {
-        setProgress(0);
-      }, 0);
+      setProgress(0);
+      setCalibrationMessage('Hold still...');
+      setShowProgress(true);
 
       // Start progress update interval
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
       progressIntervalRef.current = setInterval(() => {
         if (startTimeRef.current) {
           const elapsed = Date.now() - startTimeRef.current;
@@ -295,10 +284,10 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
             // Small delay before calling onCalibrated to show success message
             calibrationTimerRef.current = setTimeout(() => {
               onCalibrated();
-            }, 300); // Reduced from 500ms for faster transition
+            }, 300);
           }
         }
-      }, 30); // Update every 30ms for smoother progress (reduced from 50ms)
+      }, 30); // Update every 30ms for smoother progress
     }
   }, [landmarks, isLoading, error, isCalibrated, onCalibrated]);
 
