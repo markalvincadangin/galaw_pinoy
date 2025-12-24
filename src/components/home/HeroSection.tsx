@@ -121,7 +121,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
         >
           <span className="text-brand-red">Buhay</span>{' '}
-          <span className="text-brand-yellow">Kultura.</span>
+          <span className="text-brand-yellow">Kultura</span>
         </motion.p>
 
         {/* Subheadline */}

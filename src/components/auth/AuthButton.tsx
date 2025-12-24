@@ -14,8 +14,8 @@ export default function AuthButton() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setIsLoggedIn(!!session);
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsLoggedIn(!!user);
       } catch (error) {
         console.error('Error checking auth:', error);
         setIsLoggedIn(false);

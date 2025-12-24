@@ -21,11 +21,11 @@ export default function Navigation() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setIsLoggedIn(!!session);
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsLoggedIn(!!user);
         
         // Check if user is admin
-        if (session?.user?.email) {
+        if (user?.email) {
           // Fetch admin emails from API route (since env vars aren't available client-side)
           try {
             const response = await fetch('/api/check-admin');
