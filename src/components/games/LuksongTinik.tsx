@@ -210,7 +210,7 @@ export default function LuksongTinik(): React.ReactElement {
 
     // Show result modal
     setShowResultModal(true);
-  }, [playGameOver, isMusicPlaying, toggleMusic]);
+  }, [playGameOver, isMusicPlaying, toggleMusic, gameState]);
 
   // Start game timer
   const startGameTimer = useCallback(() => {
@@ -222,13 +222,24 @@ export default function LuksongTinik(): React.ReactElement {
 
     timerIntervalRef.current = setInterval(() => {
       setTimer((prev) => {
+        // Check if game is already over (prevent race conditions)
+        if (gameState === 'over') {
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
+          }
+          return 0;
+        }
         if (prev <= 1) {
           // Clear interval before calling endGame to prevent race conditions
           if (timerIntervalRef.current) {
             clearInterval(timerIntervalRef.current);
             timerIntervalRef.current = null;
           }
-          endGame();
+          // Use setTimeout to ensure state updates don't conflict
+          setTimeout(() => {
+            endGame();
+          }, 0);
           return 0;
         }
         return prev - 1;
@@ -395,6 +406,12 @@ export default function LuksongTinik(): React.ReactElement {
       return;
     }
 
+    // WAIT FOR POSE DETECTION TO INITIALIZE - This is critical!
+    // If still loading, pose detection is not ready yet - don't run game logic
+    if (isLoading) {
+      return;
+    }
+
     // Check stamina - can't jump if too tired
     if (stamina < MIN_STAMINA_TO_JUMP) {
       return;
@@ -412,13 +429,19 @@ export default function LuksongTinik(): React.ReactElement {
       }, 0);
     }
 
+    // Early return if pose data not available, but don't block game end logic
     if (!landmarks || !groundHipY || !userHeight) {
       return;
     }
 
+    // Guard: Check game state again inside try block to prevent execution after game ends
+    if (gameState !== 'playing') {
+      return;
+    }
+
     try {
-      const leftHip = landmarks.leftHip;
-      const rightHip = landmarks.rightHip;
+      const leftHip = landmarks?.leftHip;
+      const rightHip = landmarks?.rightHip;
 
       if (!leftHip || !rightHip) {
         // Reset jump state if landmarks are missing
@@ -734,7 +757,8 @@ export default function LuksongTinik(): React.ReactElement {
             level={level}
             timer={timer}
             stamina={stamina}
-            showPoseWarning={!isDetecting && gameState === 'playing'}
+            showPoseWarning={!isDetecting && gameState === 'playing' && !showResultModal}
+            gameState={gameState}
           />
 
           {/* Combo Popup Animations */}

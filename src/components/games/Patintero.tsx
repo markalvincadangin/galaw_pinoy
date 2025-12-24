@@ -196,7 +196,7 @@ export default function Patintero(): React.ReactElement {
         setCurrentLane(null);
       }, 0);
     }
-  }, [landmarks, gameState, error, currentLane, showTutorial]);
+  }, [landmarks, gameState, isLoading, error, currentLane, showTutorial]);
 
   // Start game (go to lobby for calibration)
   const startGame = useCallback(() => {
@@ -240,12 +240,25 @@ export default function Patintero(): React.ReactElement {
   // Start timer
   const startTimer = useCallback(() => {
     timerIntervalRef.current = setInterval(() => {
+      // Check if game is already over (prevent updates after game ends)
+      if (gameState === 'over') {
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current);
+          timerIntervalRef.current = null;
+        }
+        return;
+      }
       setElapsedTime((Date.now() - gameStartTimeRef.current) / 1000);
     }, 100); // Update every 100ms for smoother display
-  }, []);
+  }, [gameState]);
 
   // End game
   const endGame = useCallback(() => {
+    // Prevent multiple calls to endGame
+    if (gameState === 'over') {
+      return;
+    }
+
     setGameState('over');
     
     // Clear all intervals and timeouts
@@ -286,7 +299,7 @@ export default function Patintero(): React.ReactElement {
 
     // Show result modal
     setShowResultModal(true);
-  }, [elapsedTime, playGameOver, isMusicPlaying, toggleMusic, comboCount, feverMode]);
+  }, [elapsedTime, playGameOver, isMusicPlaying, toggleMusic, comboCount, feverMode, gameState]);
 
   // Animate blockers and power-ups downward
   const animateBlockers = useCallback(() => {

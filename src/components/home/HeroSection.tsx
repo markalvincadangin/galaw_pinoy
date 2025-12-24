@@ -84,7 +84,7 @@ export default function HeroSection() {
 
         {/* Main Headline */}
         <motion.h1
-          className="text-6xl md:text-8xl lg:text-9xl font-display font-black uppercase leading-[0.9] mb-6"
+          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-display font-black uppercase leading-[0.9] mb-4 sm:mb-6"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -115,7 +115,7 @@ export default function HeroSection() {
 
         {/* Tagline */}
         <motion.p
-          className="text-2xl md:text-3xl lg:text-4xl font-display font-bold italic text-white/95 mb-8"
+          className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-bold italic text-white/95 mb-6 sm:mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
@@ -126,7 +126,7 @@ export default function HeroSection() {
 
         {/* Subheadline */}
         <motion.p
-          className="text-lg md:text-xl lg:text-2xl text-white/95 mb-12 max-w-3xl mx-auto leading-relaxed font-body drop-shadow-lg"
+          className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/95 mb-8 sm:mb-10 md:mb-12 max-w-3xl mx-auto leading-relaxed font-body drop-shadow-lg px-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}

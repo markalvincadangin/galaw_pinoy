@@ -194,7 +194,7 @@ export default function GameMechanicsModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="relative max-w-2xl w-full glass-modern rounded-3xl p-6 md:p-8 shadow-2xl border-2 border-white/20 cultural-texture max-h-[90vh] overflow-y-auto"
+        className="relative max-w-2xl w-full glass-modern rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl border-2 border-white/20 cultural-texture max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -207,18 +207,18 @@ export default function GameMechanicsModal({
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${
+        <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br flex-shrink-0 ${
             gameType === 'luksong-tinik' ? 'from-brand-yellow to-yellow-600' :
             gameType === 'patintero' ? 'from-brand-red to-red-700' :
             gameType === 'langit-lupa' ? 'from-brand-blue to-blue-700' :
             gameType === 'piko' ? 'from-purple-500 to-purple-700' :
             'from-green-500 to-green-700'
-          } flex items-center justify-center flex-shrink-0`}>
-            <Icon className="w-8 h-8 text-white" />
+          }`}>
+            <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <div>
-            <h2 className={`text-3xl md:text-4xl font-display font-bold mb-1 ${mechanics.color}`}>
+          <div className="min-w-0 flex-1">
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl font-display font-bold mb-1 ${mechanics.color} break-words`}>
               {mechanics.title}
             </h2>
             <p className="text-xs text-white/60 uppercase tracking-wider font-semibold">
@@ -228,74 +228,74 @@ export default function GameMechanicsModal({
         </div>
 
         {/* Objective */}
-        <div className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10">
-          <h3 className="text-sm font-display font-bold text-white/70 uppercase tracking-wider mb-2">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-white/5 border border-white/10">
+          <h3 className="text-xs sm:text-sm font-display font-bold text-white/70 uppercase tracking-wider mb-2">
             Objective
           </h3>
-          <p className="text-white/90 font-body leading-relaxed">
+          <p className="text-sm sm:text-base text-white/90 font-body leading-relaxed">
             {mechanics.objective}
           </p>
         </div>
 
         {/* How to Play */}
-        <div className="mb-6">
-          <h3 className="text-lg font-display font-bold text-white mb-3 flex items-center gap-2">
-            <Target className="w-5 h-5 text-brand-yellow" />
-            How to Play
+        <div className="mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-display font-bold text-white mb-2 sm:mb-3 flex items-center gap-2">
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 text-brand-yellow flex-shrink-0" />
+            <span>How to Play</span>
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-2 sm:space-y-2.5">
             {mechanics.howToPlay.map((step, index) => (
-              <li key={index} className="flex items-start gap-3 text-white/90 font-body">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-blue/30 text-brand-blue font-display font-bold text-sm flex items-center justify-center mt-0.5">
+              <li key={index} className="flex items-start gap-2 sm:gap-3 text-white/90 font-body">
+                <span className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-blue/30 text-brand-blue font-display font-bold text-xs sm:text-sm flex items-center justify-center mt-0.5">
                   {index + 1}
                 </span>
-                <span className="leading-relaxed">{step}</span>
+                <span className="text-sm sm:text-base leading-relaxed flex-1">{step}</span>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Features */}
-        <div className="mb-6">
-          <h3 className="text-lg font-display font-bold text-white mb-3 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-brand-yellow" />
-            Features
+        <div className="mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-display font-bold text-white mb-2 sm:mb-3 flex items-center gap-2">
+            <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-brand-yellow flex-shrink-0" />
+            <span>Features</span>
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {mechanics.features.map((feature, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10"
+                className="flex items-center gap-2 p-2 sm:p-2.5 rounded-lg bg-white/5 border border-white/10"
               >
-                <div className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
-                <span className="text-sm text-white/90 font-body">{feature}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-yellow flex-shrink-0" />
+                <span className="text-xs sm:text-sm text-white/90 font-body">{feature}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Tips */}
-        <div className="mb-6 p-4 rounded-xl bg-brand-yellow/10 border border-brand-yellow/30">
-          <h3 className="text-sm font-display font-bold text-brand-yellow uppercase tracking-wider mb-2">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-brand-yellow/10 border border-brand-yellow/30">
+          <h3 className="text-xs sm:text-sm font-display font-bold text-brand-yellow uppercase tracking-wider mb-2">
             💡 Pro Tips
           </h3>
-          <ul className="space-y-1.5">
+          <ul className="space-y-1.5 sm:space-y-2">
             {mechanics.tips.map((tip, index) => (
-              <li key={index} className="text-white/90 font-body text-sm leading-relaxed flex items-start gap-2">
-                <span className="text-brand-yellow">•</span>
-                <span>{tip}</span>
+              <li key={index} className="text-white/90 font-body text-xs sm:text-sm leading-relaxed flex items-start gap-2">
+                <span className="text-brand-yellow flex-shrink-0 mt-0.5">•</span>
+                <span className="flex-1">{tip}</span>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/10">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-white/10">
           <KineticButton
             variant="ghost"
             size="md"
             onClick={onClose}
-            className="flex-1"
+            className="flex-1 w-full sm:w-auto"
           >
             Cancel
           </KineticButton>
@@ -303,7 +303,7 @@ export default function GameMechanicsModal({
             variant="primary"
             size="md"
             onClick={onContinue}
-            className="flex-1"
+            className="flex-1 w-full sm:w-auto"
           >
             Continue to Tutorial
           </KineticButton>

@@ -100,8 +100,8 @@ export default function TutorialModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="text-center mb-6">
-          <h2 className={`text-3xl font-display font-bold mb-2 ${config.color}`}>
+        <div className="text-center mb-4 sm:mb-6">
+          <h2 className={`text-2xl sm:text-3xl font-display font-bold mb-2 ${config.color}`}>
             {config.title}
           </h2>
           <p className="text-xs text-white/60 uppercase tracking-wider font-semibold">
@@ -110,12 +110,12 @@ export default function TutorialModal({
         </div>
 
         {/* Description */}
-        <p className="text-center text-white/90 text-sm mb-6 font-body">
+        <p className="text-center text-white/90 text-xs sm:text-sm mb-4 sm:mb-6 font-body">
           {config.desc}
         </p>
 
         {/* Animation Stage */}
-        <div className="relative bg-black/50 rounded-2xl overflow-hidden mb-6 h-64 flex items-center justify-center">
+        <div className="relative bg-black/50 rounded-xl sm:rounded-2xl overflow-hidden mb-4 sm:mb-6 h-48 sm:h-56 md:h-64 flex items-center justify-center">
           <Lottie
             animationData={config.anim}
             loop={true}
@@ -151,10 +151,10 @@ export default function TutorialModal({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onComplete}
-            className="w-full py-4 px-6 rounded-xl font-display font-bold text-lg transition-all duration-200 bg-brand-yellow text-black shadow-lg hover:shadow-xl cursor-pointer"
+            className="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-lg sm:rounded-xl font-display font-bold text-base sm:text-lg transition-all duration-200 bg-brand-yellow text-black shadow-lg hover:shadow-xl cursor-pointer"
           >
             <span className="flex items-center justify-center gap-2">
-              <Play className="w-5 h-5" />
+              <Play className="w-4 h-4 sm:w-5 sm:h-5" />
               START MISSION
             </span>
           </motion.button>
