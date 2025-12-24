@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 
+
 export default function Laro() {
   const games = [
     {
@@ -105,7 +106,7 @@ export default function Laro() {
               return (
                 <Link
                   key={game.slug}
-                  href={`/laro/gamesContent/${game.slug}`}
+                  href={`/laro/LaroGamesContent/${game.slug}`}
                   className="group"
                 >
                   <motion.div
