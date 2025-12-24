@@ -9,6 +9,8 @@ import { useGameFeedback } from '@/hooks/useGameFeedback';
 import CalibrationCheck from '@/components/game/CalibrationCheck';
 import ResultModal from '@/components/game/ResultModal';
 import TutorialModal from '@/components/game/TutorialModal';
+import GameMechanicsModal from '@/components/game/GameMechanicsModal';
+import GameHUD from '@/components/game/GameHUD';
 
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'over';
 
@@ -84,7 +86,8 @@ export default function Patintero(): React.ReactElement {
   const [rubberBandingActive, setRubberBandingActive] = useState(false); // Rubber banding state
   const [rubberBandingEndTime, setRubberBandingEndTime] = useState<number | null>(null); // When rubber banding ends
   const [rubberBandingTimeRemaining, setRubberBandingTimeRemaining] = useState(0); // Time remaining for rubber banding
-  const [showTutorial, setShowTutorial] = useState(true); // Tutorial modal visibility
+  const [showMechanics, setShowMechanics] = useState(true); // Mechanics modal visibility
+  const [showTutorial, setShowTutorial] = useState(false); // Tutorial modal visibility
   const [isUnlocked, setIsUnlocked] = useState(false); // Challenge completion status
 
   // Refs
@@ -585,40 +588,7 @@ export default function Patintero(): React.ReactElement {
     }, 1000);
   }, [beginPlaying, isMusicPlaying, toggleMusic, showTutorial]);
 
-  // Wait for full body detection
-  useEffect(() => {
-    if (gameState !== 'ready' || !landmarks) return;
-
-    // Safety check: if pose detection fails, don't crash
-    if (error) {
-      return;
-    }
-
-    try {
-      const leftShoulder = landmarks.leftShoulder;
-      const rightShoulder = landmarks.rightShoulder;
-      const leftHip = landmarks.leftHip;
-      const rightHip = landmarks.rightHip;
-
-      // Check if full body is visible (shoulders and hips detected)
-      if (leftShoulder && rightShoulder && leftHip && rightHip) {
-        // Check if body is tall enough (distance between shoulders and hips)
-        const shoulderY = (leftShoulder.y + rightShoulder.y) / 2;
-        const hipY = (leftHip.y + rightHip.y) / 2;
-        const bodyHeight = hipY - shoulderY;
-
-        if (bodyHeight > 0.2) {
-          // Full body detected, start countdown
-          setTimeout(() => {
-            startCountdown();
-          }, 0);
-        }
-      }
-    } catch (err) {
-      console.error('Error in full body detection:', err);
-      // Don't crash, just log the error
-    }
-  }, [gameState, landmarks, startCountdown, error]);
+  // Removed auto-start logic - user should click START button instead
 
   // Keep refs in sync
   useEffect(() => {
@@ -847,66 +817,31 @@ export default function Patintero(): React.ReactElement {
             )}
           </div>
 
+          {/* START Button in Ready State */}
+          {gameState === 'ready' && (
+            <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-auto">
+              <button
+                onClick={startCountdown}
+                className="px-12 py-6 bg-brand-yellow hover:bg-yellow-500 text-black font-display font-bold text-2xl rounded-2xl shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                START
+              </button>
+            </div>
+          )}
+
           {/* HUD Overlay */}
-          <div className={`absolute top-4 left-4 right-4 z-30 bg-black/70 p-4 rounded-lg ${
-            feverMode ? 'border-2 border-yellow-400' : ''
-          }`}>
-            <p className="text-lg font-semibold mb-2">
-              {feverMode ? (
-                <span className="text-yellow-400 animate-pulse">🔥 FEVER MODE 🔥</span>
-              ) : (
-                getStatusText()
-              )}
-            </p>
-            <p className="text-sm">
-              Time: <span className="font-bold">{Math.floor(elapsedTime)}</span>s
-              {currentLane && (
-                <span className="ml-4">
-                  Lane: <span className="font-bold capitalize">{currentLane}</span>
-                </span>
-              )}
-              {feverMode && (
-                <span className="ml-4 text-yellow-400">
-                  Combo: <span className="font-bold">{comboCount}</span> (2x Score!)
-                </span>
-              )}
-            </p>
-            
-            {/* Power-up Status */}
-            {activePowerUp && (
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-xs text-white/80">Active:</span>
-                <span className={`px-2 py-1 rounded text-xs font-bold ${
-                  activePowerUp === 'shield'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-purple-500 text-white'
-                }`}>
-                  {activePowerUp === 'shield' ? '🛡️ Shield' : '⏱️ Slow Time'}
-                </span>
-                <span className="text-xs text-white/60">
-                  ({Math.ceil(powerUpTimer / 1000)}s)
-                </span>
-              </div>
-            )}
-            
-            {/* Rubber Banding Indicator */}
-            {rubberBandingActive && (
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-xs text-blue-400 animate-pulse">
-                  🛡️ Rubber Banding Active - Enemies Slowed!
-                </span>
-                {rubberBandingTimeRemaining > 0 && (
-                  <span className="text-xs text-white/60">
-                    ({rubberBandingTimeRemaining}s)
-                  </span>
-                )}
-              </div>
-            )}
-            
-            {!isDetecting && gameState === 'playing' && (
-              <p className="text-yellow-400 text-sm mt-2">No pose detected. Make sure you&apos;re visible!</p>
-            )}
-          </div>
+          <GameHUD
+            status={feverMode ? '🔥 FEVER MODE 🔥' : getStatusText()}
+            timer={elapsedTime}
+            lane={currentLane || undefined}
+            comboCount={feverMode ? comboCount : undefined}
+            activePowerUp={activePowerUp || undefined}
+            powerUpTimer={powerUpTimer}
+            feverMode={feverMode}
+            rubberBandingActive={rubberBandingActive}
+            rubberBandingTimeRemaining={rubberBandingTimeRemaining}
+            showPoseWarning={!isDetecting && gameState === 'playing'}
+          />
         </section>
       )}
 
@@ -922,6 +857,20 @@ export default function Patintero(): React.ReactElement {
           }}
         />
       )}
+
+      {/* Game Mechanics Modal */}
+      <GameMechanicsModal
+        gameType="patintero"
+        isOpen={showMechanics}
+        onClose={() => {
+          setShowMechanics(false);
+          setShowTutorial(false);
+        }}
+        onContinue={() => {
+          setShowMechanics(false);
+          setShowTutorial(true);
+        }}
+      />
 
       {/* Tutorial Modal */}
       <TutorialModal

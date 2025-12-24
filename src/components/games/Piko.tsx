@@ -10,6 +10,8 @@ import { createPosePhysicsAnalyzer } from '@/utils/posePhysics';
 import CalibrationCheck from '@/components/game/CalibrationCheck';
 import ResultModal from '@/components/game/ResultModal';
 import TutorialModal from '@/components/game/TutorialModal';
+import GameMechanicsModal from '@/components/game/GameMechanicsModal';
+import GameHUD from '@/components/game/GameHUD';
 
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'over';
 
@@ -23,7 +25,7 @@ interface GridCell {
 
 const GRID_COLS = 3;
 const GRID_ROWS = 5;
-const ONE_LEG_THRESHOLD = 0.05; // Ankle Y difference threshold (normalized)
+const ONE_LEG_THRESHOLD = 0.03; // Ankle Y difference threshold (normalized) - reduced from 0.05 for better sensitivity
 const BALANCE_GRACE_PERIOD = 500; // 0.5 seconds grace period for balance (milliseconds)
 
 export default function Piko(): React.ReactElement {
@@ -41,7 +43,8 @@ export default function Piko(): React.ReactElement {
   const [showResultModal, setShowResultModal] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
   const [finalCalories, setFinalCalories] = useState(0);
-  const [showTutorial, setShowTutorial] = useState(true); // Tutorial modal visibility
+  const [showMechanics, setShowMechanics] = useState(true); // Mechanics modal visibility
+  const [showTutorial, setShowTutorial] = useState(false); // Tutorial modal visibility
   const [isUnlocked, setIsUnlocked] = useState(false); // Challenge completion status
 
   // Refs
@@ -444,16 +447,15 @@ export default function Piko(): React.ReactElement {
           )}
 
           {/* HUD Overlay */}
-          <div className="absolute top-4 left-4 right-4 z-30 bg-black/70 p-4 rounded-lg">
-            <p className="text-lg font-semibold mb-2">{getStatusText()}</p>
-            <p className="text-sm">
-              Score: <span className="font-bold">{score}</span> | Cells Completed:{' '}
-              <span className="font-bold">{grid.filter((c) => c.isCompleted).length}/{grid.length}</span>
-            </p>
-            {!isDetecting && gameState === 'playing' && (
-              <p className="text-yellow-400 text-sm mt-2">No pose detected. Make sure you&apos;re visible!</p>
-            )}
-          </div>
+          <GameHUD
+            status={getStatusText()}
+            score={score}
+            cellsCompleted={{
+              current: grid.filter((c) => c.isCompleted).length,
+              total: grid.length,
+            }}
+            showPoseWarning={!isDetecting && gameState === 'playing'}
+          />
 
           {/* Action Button */}
           {gameState === 'ready' && (
@@ -479,6 +481,20 @@ export default function Piko(): React.ReactElement {
           }}
         />
       )}
+
+      {/* Game Mechanics Modal */}
+      <GameMechanicsModal
+        gameType="piko"
+        isOpen={showMechanics}
+        onClose={() => {
+          setShowMechanics(false);
+          setShowTutorial(false);
+        }}
+        onContinue={() => {
+          setShowMechanics(false);
+          setShowTutorial(true);
+        }}
+      />
 
       {/* Tutorial Modal */}
       <TutorialModal

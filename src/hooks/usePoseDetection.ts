@@ -102,34 +102,73 @@ export function usePoseDetection(
   const poseRef = useRef<Pose | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const previousLandmarksRef = useRef<PoseLandmarks | null>(null);
+  const detectionRunningRef = useRef(false);
 
   // Initialize MediaPipe Pose model
   useEffect(() => {
     let isMounted = true;
+    let hasInitialized = false;
 
     const initializePose = async () => {
+      // Prevent multiple initializations
+      if (hasInitialized) return;
+      hasInitialized = true;
+
       try {
         setIsLoading(true);
         setError(null);
 
         // Dynamic import to avoid SSR issues with MediaPipe
-        const { Pose: PoseClass } = await import('@mediapipe/pose');
+        // Wrap in try-catch to handle Turbopack/WebAssembly loading errors
+        let PoseClass;
+        try {
+          const poseModule = await import('@mediapipe/pose');
+          PoseClass = poseModule.Pose;
+        } catch (importError) {
+          console.error('Failed to import MediaPipe Pose:', importError);
+          if (isMounted) {
+            setError('Failed to load pose detection. Please refresh the page.');
+            setIsLoading(false);
+          }
+          return;
+        }
+        
         const Pose = PoseClass as unknown as PoseConstructor;
 
-        const pose = new Pose({
-          locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-          },
-        });
+        // Wrap Pose constructor in try-catch to handle WebAssembly/Turbopack errors
+        let pose;
+        try {
+          pose = new Pose({
+            locateFile: (file) => {
+              return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+            },
+          });
+        } catch (constructorError) {
+          console.error('Failed to create Pose instance:', constructorError);
+          if (isMounted) {
+            setError('Failed to initialize pose detection model. Please refresh the page.');
+            setIsLoading(false);
+          }
+          return;
+        }
 
-        pose.setOptions({
-          modelComplexity: 1,
-          smoothLandmarks: true,
-          enableSegmentation: false,
-          smoothSegmentation: false,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-        });
+        try {
+          pose.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            enableSegmentation: false,
+            smoothSegmentation: false,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+          });
+        } catch (optionsError) {
+          console.error('Failed to set Pose options:', optionsError);
+          if (isMounted) {
+            setError('Failed to configure pose detection. Please refresh the page.');
+            setIsLoading(false);
+          }
+          return;
+        }
 
         // Handle pose detection results
         pose.onResults((results) => {
@@ -377,20 +416,25 @@ export function usePoseDetection(
 
     return () => {
       isMounted = false;
+      hasInitialized = false;
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
       if (poseRef.current) {
-        poseRef.current.close();
+        try {
+          poseRef.current.close();
+        } catch (err) {
+          // Ignore errors during cleanup
+        }
         poseRef.current = null;
       }
     };
-  }, []);
+  }, []); // Empty dependency array - only run once on mount
 
   // Start/stop detection based on webcam availability
   useEffect(() => {
-    if (!poseRef.current || isLoading) {
+    if (!poseRef.current || isLoading || detectionRunningRef.current) {
       return;
     }
 
@@ -399,42 +443,59 @@ export function usePoseDetection(
       return;
     }
 
+    let isRunning = true;
+    detectionRunningRef.current = true;
+
     // Wait for video to be ready
     const handleLoadedMetadata = () => {
-      if (!poseRef.current || !video) return;
+      if (!isRunning || !poseRef.current || !video) return;
 
       // Start pose detection loop
       const detectPose = async () => {
-        if (!poseRef.current || !video) return;
+        if (!isRunning || !poseRef.current || !video) {
+          detectionRunningRef.current = false;
+          return;
+        }
 
         try {
           if (video.readyState >= 2) {
             await poseRef.current.send({ image: video });
           }
         } catch (err) {
-          console.error('Pose detection error:', err);
+          // Silently handle errors - may happen during cleanup or if video is not ready
+          if (isRunning) {
+            console.error('Pose detection error:', err);
+          }
         }
 
-        animationFrameRef.current = requestAnimationFrame(detectPose);
+        if (isRunning && poseRef.current && video) {
+          animationFrameRef.current = requestAnimationFrame(detectPose);
+        } else {
+          detectionRunningRef.current = false;
+        }
       };
 
-      detectPose();
+      if (isRunning) {
+        detectPose();
+      }
     };
 
     if (video.readyState >= 2) {
       handleLoadedMetadata();
     } else {
-      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
     }
 
     return () => {
+      isRunning = false;
+      detectionRunningRef.current = false;
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
     };
-  }, [webcamRef, isLoading]);
+  }, [isLoading]); // Only depend on isLoading, webcamRef is stable
 
   return {
     landmarks,
@@ -447,4 +508,3 @@ export function usePoseDetection(
     hipAnkleDistance,
   };
 }
-
