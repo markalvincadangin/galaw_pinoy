@@ -11,7 +11,6 @@ export default function LangitLupa() {
   return (
     <>
       <Navigation />
-
       <main className="min-h-screen pb-20 md:pb-0 px-6 md:px-8">
         {/* Hero Section */}
         <section className="min-h-[70vh] flex flex-col justify-center items-center text-center py-20 md:py-32">

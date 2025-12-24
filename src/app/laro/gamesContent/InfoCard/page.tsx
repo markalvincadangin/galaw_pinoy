@@ -6,6 +6,7 @@ type InfoCardProps = {
   color: string;
   children: ReactNode;
 };
+
 import { motion } from 'framer-motion';
 
 function InfoCard({ icon: Icon, title, color, children }: InfoCardProps) {

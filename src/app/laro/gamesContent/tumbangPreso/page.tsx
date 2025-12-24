@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon } from 'lucide-react';
-import { ReactNode, ComponentType } from 'react';
 import InfoCard from '../InfoCard/page';
 
 export default function TumbangPreso() {
@@ -25,7 +24,6 @@ export default function TumbangPreso() {
             <span className="text-sm font-display font-bold uppercase tracking-wider text-brand-red">
               Traditional Filipino Game
             </span>
-
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-black uppercase leading-tight tracking-tight text-white mb-6 drop-shadow-xl">
               <span className="text-brand-blue">Tumbang Preso</span>
             </h1>

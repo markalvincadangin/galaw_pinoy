@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon } from 'lucide-react';
-import { ReactNode, ComponentType } from 'react';
 import InfoCard from '../InfoCard/page';
 
 export default function Piko() {
@@ -12,7 +11,6 @@ export default function Piko() {
   return (
     <>
       <Navigation />
-
       <main className="min-h-screen pb-20 md:pb-0 px-6 md:px-8">
         {/* Hero Section */}
         <section className="min-h-[70vh] flex flex-col justify-center items-center text-center py-20 md:py-32">
