@@ -5,16 +5,16 @@ export async function GET() {
   try {
     const supabase = await createClient();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session?.user?.email) {
+    if (!user?.email) {
       return NextResponse.json({ isAdmin: false });
     }
 
     // Get admin emails from environment variable
     const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || [];
-    const userEmail = session.user.email.toLowerCase().trim();
+    const userEmail = user.email.toLowerCase().trim();
     const isAdmin = ADMIN_EMAILS.includes(userEmail);
 
     return NextResponse.json({ isAdmin });

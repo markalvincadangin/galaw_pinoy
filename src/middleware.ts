@@ -40,10 +40,10 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Refresh session if expired
+  // Get authenticated user (more secure than getSession)
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
@@ -62,11 +62,11 @@ export async function middleware(request: NextRequest) {
 
   // Admin email check - trim whitespace and make case-insensitive
   const ADMIN_EMAILS = process.env.ADMIN_EMAILS?.split(',').map(email => email.trim().toLowerCase()) || [];
-  const userEmail = session?.user?.email?.toLowerCase().trim();
+  const userEmail = user?.email?.toLowerCase().trim();
   const isAdmin = userEmail && ADMIN_EMAILS.includes(userEmail);
 
   // Redirect logic for protected routes
-  if (isProtectedRoute && !session) {
+  if (isProtectedRoute && !user) {
     const redirectUrl = new URL('/login', request.url);
     redirectUrl.searchParams.set('next', pathname);
     return NextResponse.redirect(redirectUrl);
@@ -74,7 +74,7 @@ export async function middleware(request: NextRequest) {
 
   // Redirect logic for admin routes
   if (isAdminRoute) {
-    if (!session) {
+    if (!user) {
       const redirectUrl = new URL('/login', request.url);
       redirectUrl.searchParams.set('next', pathname);
       return NextResponse.redirect(redirectUrl);
@@ -86,14 +86,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users away from login page
-  if (isPublicAuthRoute && session) {
+  if (isPublicAuthRoute && user) {
     return NextResponse.redirect(new URL('/play', request.url));
   }
 
   // Allow authenticated users to access home page (they can still see it)
   // But we could optionally redirect them to /play if desired
   // Uncomment below if you want to redirect authenticated users from home to /play
-  // if (pathname === '/' && session) {
+  // if (pathname === '/' && user) {
   //   return NextResponse.redirect(new URL('/play', request.url));
   // }
 

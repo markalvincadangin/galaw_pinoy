@@ -23,21 +23,21 @@ export async function saveGameResult(
   calories: number
 ): Promise<GameResultAction> {
   try {
-    // Get current user session
+    // Get current authenticated user (more secure than getSession)
     const supabase = await createClient();
     const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    if (sessionError || !session?.user) {
+    if (userError || !user) {
       return {
         success: false,
         message: 'You must be logged in to save game results.',
       };
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // Check if user exists in users table, create if not
     let [currentUser] = await db
@@ -49,7 +49,7 @@ export async function saveGameResult(
     if (!currentUser) {
       // User doesn't exist in users table, create entry
       // Note: This assumes username comes from auth metadata or email
-      const username = session.user.email?.split('@')[0] || `user_${userId.slice(0, 8)}`;
+      const username = user.email?.split('@')[0] || `user_${userId.slice(0, 8)}`;
       
       await db.insert(users).values({
         id: userId,

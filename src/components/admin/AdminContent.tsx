@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import DebugToggle from '@/components/admin/DebugToggle';
 
 interface Reflection {
   id: string;
@@ -16,14 +17,23 @@ export default function AdminContent({ reflectionsData }: AdminContentProps) {
   return (
     <main className="pt-16 min-h-screen bg-brand-dark text-white">
       <section className="py-16 px-6 md:px-8 max-w-7xl mx-auto">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-3xl md:text-4xl font-display font-bold text-white mb-8 drop-shadow-lg"
-        >
-          Submitted Reflections
-        </motion.h1>
+        <div className="flex items-center justify-between mb-8">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl md:text-4xl font-display font-bold text-white drop-shadow-lg"
+          >
+            Submitted Reflections
+          </motion.h1>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <DebugToggle />
+          </motion.div>
+        </div>
 
         {reflectionsData.length === 0 ? (
           <motion.div

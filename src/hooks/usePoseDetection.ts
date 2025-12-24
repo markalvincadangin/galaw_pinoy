@@ -49,6 +49,11 @@ export interface UsePoseDetectionReturn {
   isLoading: boolean;
   error: string | null;
   isDetecting: boolean;
+  userHeight: number | null; // Normalized distance from nose to ankle (0-1 scale)
+  // Additional data for physics-based analysis
+  averageHipY: number | null; // Average Y position of hips (for velocity tracking)
+  averageAnkleY: number | null; // Average Y position of ankles (for cheating detection)
+  hipAnkleDistance: number | null; // Distance between hips and ankles (for squat detection)
 }
 
 /**
@@ -58,6 +63,30 @@ export interface UsePoseDetectionReturn {
  * @param webcamRef - RefObject from react-webcam component
  * @returns Pose landmarks (nose, shoulders, hips, knees) in real-time
  */
+/**
+ * Linear interpolation (Lerp) function for smoothing
+ * @param previous - Previous value
+ * @param current - Current value
+ * @param factor - Interpolation factor (0-1), where 0.5 means equal weight
+ * @returns Smoothed value
+ */
+function lerp(previous: number, current: number, factor: number = 0.5): number {
+  return previous * (1 - factor) + current * factor;
+}
+
+/**
+ * Calculate distance between two 3D points
+ */
+function calculateDistance(
+  p1: { x: number; y: number; z?: number },
+  p2: { x: number; y: number; z?: number }
+): number {
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  const dz = (p2.z ?? 0) - (p1.z ?? 0);
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
 export function usePoseDetection(
   webcamRef: RefObject<Webcam | null>
 ): UsePoseDetectionReturn {
@@ -65,9 +94,14 @@ export function usePoseDetection(
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [userHeight, setUserHeight] = useState<number | null>(null);
+  const [averageHipY, setAverageHipY] = useState<number | null>(null);
+  const [averageAnkleY, setAverageAnkleY] = useState<number | null>(null);
+  const [hipAnkleDistance, setHipAnkleDistance] = useState<number | null>(null);
 
   const poseRef = useRef<Pose | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const previousLandmarksRef = useRef<PoseLandmarks | null>(null);
 
   // Initialize MediaPipe Pose model
   useEffect(() => {
@@ -103,12 +137,13 @@ export function usePoseDetection(
 
           if (results.poseLandmarks && results.poseLandmarks.length > 0) {
             const landmarks = results.poseLandmarks;
+            const previous = previousLandmarksRef.current;
             
             // Extract key landmarks (MediaPipe Pose landmark indices)
             // 0: nose, 11: left_shoulder, 12: right_shoulder
             // 23: left_hip, 24: right_hip, 25: left_knee, 26: right_knee
             // 27: left_ankle, 28: right_ankle
-            const poseData: PoseLandmarks = {
+            const rawPoseData: PoseLandmarks = {
               nose: landmarks[0]
                 ? {
                     x: landmarks[0].x,
@@ -183,11 +218,147 @@ export function usePoseDetection(
                 : undefined,
             };
 
-            setLandmarks(poseData);
+            // Apply smoothing (Lerp) to Nose, Hips, and Ankles
+            const smoothedPoseData: PoseLandmarks = { ...rawPoseData };
+
+            // Smooth nose
+            if (rawPoseData.nose) {
+              if (previous?.nose) {
+                smoothedPoseData.nose = {
+                  x: lerp(previous.nose.x, rawPoseData.nose.x),
+                  y: lerp(previous.nose.y, rawPoseData.nose.y),
+                  z: rawPoseData.nose.z !== undefined && previous.nose.z !== undefined
+                    ? lerp(previous.nose.z, rawPoseData.nose.z)
+                    : rawPoseData.nose.z,
+                  visibility: rawPoseData.nose.visibility,
+                };
+              }
+            }
+
+            // Smooth left hip
+            if (rawPoseData.leftHip) {
+              if (previous?.leftHip) {
+                smoothedPoseData.leftHip = {
+                  x: lerp(previous.leftHip.x, rawPoseData.leftHip.x),
+                  y: lerp(previous.leftHip.y, rawPoseData.leftHip.y),
+                  z: rawPoseData.leftHip.z !== undefined && previous.leftHip.z !== undefined
+                    ? lerp(previous.leftHip.z, rawPoseData.leftHip.z)
+                    : rawPoseData.leftHip.z,
+                  visibility: rawPoseData.leftHip.visibility,
+                };
+              }
+            }
+
+            // Smooth right hip
+            if (rawPoseData.rightHip) {
+              if (previous?.rightHip) {
+                smoothedPoseData.rightHip = {
+                  x: lerp(previous.rightHip.x, rawPoseData.rightHip.x),
+                  y: lerp(previous.rightHip.y, rawPoseData.rightHip.y),
+                  z: rawPoseData.rightHip.z !== undefined && previous.rightHip.z !== undefined
+                    ? lerp(previous.rightHip.z, rawPoseData.rightHip.z)
+                    : rawPoseData.rightHip.z,
+                  visibility: rawPoseData.rightHip.visibility,
+                };
+              }
+            }
+
+            // Smooth left ankle
+            if (rawPoseData.leftAnkle) {
+              if (previous?.leftAnkle) {
+                smoothedPoseData.leftAnkle = {
+                  x: lerp(previous.leftAnkle.x, rawPoseData.leftAnkle.x),
+                  y: lerp(previous.leftAnkle.y, rawPoseData.leftAnkle.y),
+                  z: rawPoseData.leftAnkle.z !== undefined && previous.leftAnkle.z !== undefined
+                    ? lerp(previous.leftAnkle.z, rawPoseData.leftAnkle.z)
+                    : rawPoseData.leftAnkle.z,
+                  visibility: rawPoseData.leftAnkle.visibility,
+                };
+              }
+            }
+
+            // Smooth right ankle
+            if (rawPoseData.rightAnkle) {
+              if (previous?.rightAnkle) {
+                smoothedPoseData.rightAnkle = {
+                  x: lerp(previous.rightAnkle.x, rawPoseData.rightAnkle.x),
+                  y: lerp(previous.rightAnkle.y, rawPoseData.rightAnkle.y),
+                  z: rawPoseData.rightAnkle.z !== undefined && previous.rightAnkle.z !== undefined
+                    ? lerp(previous.rightAnkle.z, rawPoseData.rightAnkle.z)
+                    : rawPoseData.rightAnkle.z,
+                  visibility: rawPoseData.rightAnkle.visibility,
+                };
+              }
+            }
+
+            // Calculate userHeight: distance from nose to ankle (average of left and right ankle)
+            if (smoothedPoseData.nose && smoothedPoseData.leftAnkle && smoothedPoseData.rightAnkle) {
+              // Calculate midpoint between left and right ankle
+              const ankleMidpoint = {
+                x: (smoothedPoseData.leftAnkle.x + smoothedPoseData.rightAnkle.x) / 2,
+                y: (smoothedPoseData.leftAnkle.y + smoothedPoseData.rightAnkle.y) / 2,
+                z: (smoothedPoseData.leftAnkle.z ?? 0) + (smoothedPoseData.rightAnkle.z ?? 0) / 2,
+              };
+
+              // Calculate distance from nose to ankle midpoint (normalized, 0-1 scale)
+              const height = calculateDistance(
+                { x: smoothedPoseData.nose.x, y: smoothedPoseData.nose.y, z: smoothedPoseData.nose.z ?? 0 },
+                ankleMidpoint
+              );
+
+              setUserHeight(height);
+            } else {
+              setUserHeight(null);
+            }
+
+            // Calculate average hip Y position (for velocity tracking)
+            if (smoothedPoseData.leftHip && smoothedPoseData.rightHip) {
+              const avgHipY = (smoothedPoseData.leftHip.y + smoothedPoseData.rightHip.y) / 2;
+              setAverageHipY(avgHipY);
+            } else {
+              setAverageHipY(null);
+            }
+
+            // Calculate average ankle Y position (for cheating detection)
+            if (smoothedPoseData.leftAnkle && smoothedPoseData.rightAnkle) {
+              const avgAnkleY = (smoothedPoseData.leftAnkle.y + smoothedPoseData.rightAnkle.y) / 2;
+              setAverageAnkleY(avgAnkleY);
+            } else {
+              setAverageAnkleY(null);
+            }
+
+            // Calculate hip-ankle distance (for squat detection)
+            if (smoothedPoseData.leftHip && smoothedPoseData.rightHip && 
+                smoothedPoseData.leftAnkle && smoothedPoseData.rightAnkle) {
+              const avgHip = {
+                x: (smoothedPoseData.leftHip.x + smoothedPoseData.rightHip.x) / 2,
+                y: (smoothedPoseData.leftHip.y + smoothedPoseData.rightHip.y) / 2,
+                z: ((smoothedPoseData.leftHip.z ?? 0) + (smoothedPoseData.rightHip.z ?? 0)) / 2,
+              };
+              const avgAnkle = {
+                x: (smoothedPoseData.leftAnkle.x + smoothedPoseData.rightAnkle.x) / 2,
+                y: (smoothedPoseData.leftAnkle.y + smoothedPoseData.rightAnkle.y) / 2,
+                z: ((smoothedPoseData.leftAnkle.z ?? 0) + (smoothedPoseData.rightAnkle.z ?? 0)) / 2,
+              };
+              const distance = calculateDistance(avgHip, avgAnkle);
+              setHipAnkleDistance(distance);
+            } else {
+              setHipAnkleDistance(null);
+            }
+
+            // Update previous landmarks for next frame
+            previousLandmarksRef.current = smoothedPoseData;
+
+            setLandmarks(smoothedPoseData);
             setIsDetecting(true);
           } else {
             setLandmarks(null);
             setIsDetecting(false);
+            setUserHeight(null);
+            setAverageHipY(null);
+            setAverageAnkleY(null);
+            setHipAnkleDistance(null);
+            previousLandmarksRef.current = null;
           }
         });
 
@@ -270,6 +441,10 @@ export function usePoseDetection(
     isLoading,
     error,
     isDetecting,
+    userHeight,
+    averageHipY,
+    averageAnkleY,
+    hipAnkleDistance,
   };
 }
 
