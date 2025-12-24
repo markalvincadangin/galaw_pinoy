@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -8,67 +8,187 @@ import { Home, Gamepad2, User, LogOut, Shield, Info, BookOpen, HeartPulse, Users
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 
+// Cache auth state globally to persist across Navigation component remounts
+const authStateCache = {
+  isLoggedIn: null as boolean | null,
+  isAdmin: false,
+  isLoading: true,
+  lastChecked: 0,
+  userEmail: null as string | null,
+};
+
+const CACHE_DURATION = 60000; // Cache for 1 minute
+
 export default function Navigation() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(authStateCache.isLoggedIn);
+  const [isLoading, setIsLoading] = useState(authStateCache.isLoading);
+  const [isAdmin, setIsAdmin] = useState(authStateCache.isAdmin);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+  const hasInitializedRef = useRef(false);
 
-  // Check authentication status and admin status
+  // Check authentication status and admin status - use cache to avoid re-checking on remount
   useEffect(() => {
-    const checkAuth = async () => {
+    let isMounted = true;
+    let subscription: { unsubscribe: () => void } | null = null;
+    
+    const checkAuth = async (forceRefresh = false) => {
+      const now = Date.now();
+      const cacheAge = authStateCache.lastChecked > 0 ? now - authStateCache.lastChecked : Infinity;
+      const isCacheValid = !forceRefresh && 
+        authStateCache.lastChecked > 0 && 
+        cacheAge < CACHE_DURATION &&
+        authStateCache.isLoggedIn !== null;
+
+      // If cache is valid, use it and skip the API call
+      if (isCacheValid) {
+        if (isMounted) {
+          setIsLoggedIn(authStateCache.isLoggedIn);
+          setIsAdmin(authStateCache.isAdmin);
+          setIsLoading(false);
+          hasInitializedRef.current = true;
+        }
+        return;
+      }
+
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        setIsLoggedIn(!!user);
+        if (!isMounted) return;
+        
+        const newIsLoggedIn = !!user;
+        const userEmail = user?.email || null;
+        
+        // Update cache and state
+        authStateCache.isLoggedIn = newIsLoggedIn;
+        authStateCache.userEmail = userEmail;
+        authStateCache.lastChecked = now;
+        setIsLoggedIn(newIsLoggedIn);
         
         // Check if user is admin
-        if (user?.email) {
-          // Fetch admin emails from API route (since env vars aren't available client-side)
-          try {
-            const response = await fetch('/api/check-admin');
-            if (response.ok) {
-              const data = await response.json();
-              setIsAdmin(data.isAdmin || false);
+        if (userEmail) {
+          // Check admin status (will use cache internally if email hasn't changed)
+          const emailChanged = authStateCache.userEmail !== userEmail;
+          if (emailChanged || forceRefresh || cacheAge >= CACHE_DURATION) {
+            try {
+              const response = await fetch('/api/check-admin');
+              if (response.ok) {
+                const data = await response.json();
+                const newIsAdmin = data.isAdmin || false;
+                authStateCache.isAdmin = newIsAdmin;
+                if (isMounted) {
+                  setIsAdmin(newIsAdmin);
+                }
+              }
+            } catch (error) {
+              console.error('Error checking admin status:', error);
+              authStateCache.isAdmin = false;
+              if (isMounted) {
+                setIsAdmin(false);
+              }
             }
-          } catch (error) {
-            console.error('Error checking admin status:', error);
-            setIsAdmin(false);
+          } else {
+            // Use cached admin status
+            if (isMounted) {
+              setIsAdmin(authStateCache.isAdmin);
+            }
           }
         } else {
-          setIsAdmin(false);
+          authStateCache.isAdmin = false;
+          if (isMounted) {
+            setIsAdmin(false);
+          }
         }
       } catch (error) {
         console.error('Error checking auth:', error);
-        setIsLoggedIn(false);
-        setIsAdmin(false);
+        authStateCache.isLoggedIn = false;
+        authStateCache.isAdmin = false;
+        if (isMounted) {
+          setIsLoggedIn(false);
+          setIsAdmin(false);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+          hasInitializedRef.current = true;
+        }
       }
     };
 
-    checkAuth();
+    // Initialize with cached state immediately if available (synchronous)
+    if (authStateCache.isLoggedIn !== null && authStateCache.lastChecked > 0) {
+      const cacheAge = Date.now() - authStateCache.lastChecked;
+      if (cacheAge < CACHE_DURATION) {
+        // Use cached values immediately (no API call)
+        setIsLoggedIn(authStateCache.isLoggedIn);
+        setIsAdmin(authStateCache.isAdmin);
+        setIsLoading(false);
+        hasInitializedRef.current = true;
+        
+        // Optionally refresh in background if cache is getting stale
+        if (cacheAge > CACHE_DURATION / 2) {
+          // Refresh in background without blocking
+          checkAuth(true).catch(() => {
+            // Silently fail background refresh
+          });
+        }
+      } else {
+        // Cache expired, check fresh
+        checkAuth(true);
+      }
+    } else {
+      // No cache, check fresh
+      checkAuth(true);
+    }
 
-    // Listen for auth changes
+    // Listen for auth changes - this will handle login/logout events
     const {
-      data: { subscription },
+      data: { subscription: authSubscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
-      if (session?.user?.email) {
-        // Re-check admin status on auth change
+      if (!isMounted) return;
+      
+      const newIsLoggedIn = !!session;
+      const userEmail = session?.user?.email || null;
+      
+      // Update cache and state
+      authStateCache.isLoggedIn = newIsLoggedIn;
+      authStateCache.userEmail = userEmail;
+      authStateCache.lastChecked = Date.now();
+      setIsLoggedIn(newIsLoggedIn);
+      
+      // Check admin status on auth change (force refresh)
+      if (newIsLoggedIn && userEmail) {
         fetch('/api/check-admin')
           .then(res => res.json())
-          .then(data => setIsAdmin(data.isAdmin || false))
-          .catch(() => setIsAdmin(false));
+          .then(data => {
+            const newIsAdmin = data.isAdmin || false;
+            authStateCache.isAdmin = newIsAdmin;
+            if (isMounted) {
+              setIsAdmin(newIsAdmin);
+            }
+          })
+          .catch(() => {
+            authStateCache.isAdmin = false;
+            if (isMounted) {
+              setIsAdmin(false);
+            }
+          });
       } else {
-        setIsAdmin(false);
+        authStateCache.isAdmin = false;
+        if (isMounted) {
+          setIsAdmin(false);
+        }
       }
     });
 
+    subscription = authSubscription;
+
     return () => {
-      subscription.unsubscribe();
+      isMounted = false;
+      if (subscription) {
+        subscription.unsubscribe();
+      }
     };
   }, [supabase]);
 

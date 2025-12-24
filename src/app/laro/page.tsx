@@ -14,19 +14,19 @@ export default function Laro() {
     },
     {
       name: 'Luksong Tinik',
-      description: 'Promotes flexibility, coordination, and timing.',
+      description: 'Jump over hurdles moving down the screen! Manage stamina and perfect your timing across 5 progressive levels.',
       icon: Target,
       color: 'from-brand-yellow to-yellow-600',
     },
     {
       name: 'Patintero',
-      description: 'Builds agility, teamwork, and strategy.',
+      description: 'Dodge blockers by moving left/right between three lanes. Collect power-ups and trigger Fever Mode for 2x score!',
       icon: Users,
       color: 'from-brand-red to-red-700',
     },
     {
       name: 'Piko',
-      description: 'Improves balance, coordination, and focus.',
+      description: 'Balance on one leg and hop to target cells on a 3×5 grid. Complete all 15 cells to win!',
       icon: Activity,
       color: 'from-brand-blue to-blue-700',
     },
@@ -38,13 +38,13 @@ export default function Laro() {
     },
     {
       name: 'Agawan Base',
-      description: 'Enhances endurance, teamwork, and strategic thinking.',
+      description: 'Run in place with high knees to reach the enemy base at 50% distance! Beat the enemy in this HIIT workout.',
       icon: Flame,
       color: 'from-brand-red to-red-700',
     },
     {
       name: 'Langit-Lupa',
-      description: 'Improves reaction time and cardiovascular endurance.',
+      description: 'React quickly to commands! Stand/Jump for LANGIT (Heaven) or Squat for LUPA (Earth). Reaction time gets faster each level.',
       icon: Heart,
       color: 'from-brand-blue to-blue-700',
     },

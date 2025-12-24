@@ -9,11 +9,13 @@ import { useGameFeedback, FeedbackPopup } from '@/hooks/useGameFeedback';
 import CalibrationCheck from '@/components/game/CalibrationCheck';
 import ResultModal from '@/components/game/ResultModal';
 import TutorialModal from '@/components/game/TutorialModal';
+import GameMechanicsModal from '@/components/game/GameMechanicsModal';
+import GameHUD from '@/components/game/GameHUD';
 
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'over';
 
 const TRACK_LENGTH = 100; // Percentage (0-100)
-const HIGH_KNEE_THRESHOLD = 0.15; // Knee must be 15% higher than hip
+const HIGH_KNEE_THRESHOLD = 0.10; // Knee must be 10% higher than hip (reduced from 0.15 for better sensitivity)
 const KNEE_LIFT_COOLDOWN = 300; // Milliseconds between knee lift detections
 const BASE_DISTANCE = 50; // Distance to enemy base (percentage)
 
@@ -32,7 +34,8 @@ export default function AgawanBase(): React.ReactElement {
   const [showResultModal, setShowResultModal] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
   const [finalCalories, setFinalCalories] = useState(0);
-  const [showTutorial, setShowTutorial] = useState(true); // Tutorial modal visibility
+  const [showMechanics, setShowMechanics] = useState(true); // Mechanics modal visibility
+  const [showTutorial, setShowTutorial] = useState(false); // Tutorial modal visibility
   const [isUnlocked, setIsUnlocked] = useState(false); // Challenge completion status
 
   // Refs
@@ -397,17 +400,13 @@ export default function AgawanBase(): React.ReactElement {
           )}
 
           {/* HUD Overlay */}
-          <div className="absolute top-4 left-4 right-4 z-30 bg-black/70 p-4 rounded-lg">
-            <p className="text-lg font-semibold mb-2">{getStatusText()}</p>
-            <p className="text-sm">
-              Score: <span className="font-bold">{score}</span> | Time:{' '}
-              <span className="font-bold">{Math.floor(timeElapsed)}</span>s | Distance:{' '}
-              <span className="font-bold">{Math.floor(playerPosition)}%</span>
-            </p>
-            {!isDetecting && gameState === 'playing' && (
-              <p className="text-yellow-400 text-sm mt-2">No pose detected. Make sure you&apos;re visible!</p>
-            )}
-          </div>
+          <GameHUD
+            status={getStatusText()}
+            score={score}
+            timer={timeElapsed}
+            distance={playerPosition}
+            showPoseWarning={!isDetecting && gameState === 'playing'}
+          />
 
           {/* Action Button */}
           {gameState === 'ready' && (
@@ -433,6 +432,20 @@ export default function AgawanBase(): React.ReactElement {
           }}
         />
       )}
+
+      {/* Game Mechanics Modal */}
+      <GameMechanicsModal
+        gameType="agawan-base"
+        isOpen={showMechanics}
+        onClose={() => {
+          setShowMechanics(false);
+          setShowTutorial(false);
+        }}
+        onContinue={() => {
+          setShowMechanics(false);
+          setShowTutorial(true);
+        }}
+      />
 
       {/* Tutorial Modal */}
       <TutorialModal
