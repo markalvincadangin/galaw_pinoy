@@ -127,11 +127,18 @@ export function useGameSound(): UseGameSoundReturn {
   const toggleMusic = useCallback(() => {
     if (isMusicPlaying) {
       stopMusic();
-      setIsMusicPlaying(false);
+      // Wait a bit to ensure music stops before allowing restart
+      setTimeout(() => {
+        setIsMusicPlaying(false);
+      }, 100);
     } else {
       if (!isMutedRef.current) {
-        playMusic();
-        setIsMusicPlaying(true);
+        // Ensure music is stopped before starting new instance
+        stopMusic();
+        setTimeout(() => {
+          playMusic();
+          setIsMusicPlaying(true);
+        }, 100);
       }
     }
   }, [isMusicPlaying, playMusic, stopMusic]);

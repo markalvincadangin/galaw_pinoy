@@ -46,7 +46,7 @@ export default function Play() {
                   Luksong Tinik
                 </h2>
                 <p className="text-white/95 mb-8 font-body leading-relaxed">
-                  Jump over virtual hurdles with stamina management. Test your flexibility and coordination.
+                  Jump over hurdles moving down the screen! Manage your stamina system and perfect your timing across 5 progressive levels.
                 </p>
                 <Link href="/play/luksong-tinik" className="block">
                   <KineticButton variant="primary" size="md" className="w-full">
@@ -69,7 +69,7 @@ export default function Play() {
                   Patintero
                 </h2>
                 <p className="text-white/95 mb-8 font-body leading-relaxed">
-                  Dodge blockers, collect power-ups, and trigger Fever Mode. Build agility and reaction time.
+                  Dodge blockers by moving left/right between three lanes. Collect power-ups, trigger Fever Mode for 2x score, and survive as long as possible!
                 </p>
                 <Link href="/play/patintero" className="block">
                   <KineticButton variant="danger" size="md" className="w-full">
@@ -92,7 +92,7 @@ export default function Play() {
                   Langit-Lupa
                 </h2>
                 <p className="text-white/95 mb-8 font-body leading-relaxed">
-                  Match poses quickly: LANGIT (Stand/Jump) or LUPA (Squat). Improves reaction time and endurance.
+                  React quickly to commands! Stand/Jump for LANGIT (Heaven) or Squat for LUPA (Earth). Reaction time gets faster each level.
                 </p>
                 <Link href="/play/langit-lupa" className="block">
                   <KineticButton variant="primary" size="md" className="w-full">
@@ -115,7 +115,7 @@ export default function Play() {
                   Piko
                 </h2>
                 <p className="text-white/95 mb-8 font-body leading-relaxed">
-                  Balance on one leg and hop to target cells. Improves balance, coordination, and focus.
+                  Balance on one leg and hop to target cells on a 3×5 grid. Complete all 15 cells to win!
                 </p>
                 <Link href="/play/piko" className="block">
                   <KineticButton variant="primary" size="md" className="w-full">
@@ -138,7 +138,7 @@ export default function Play() {
                   Agawan Base
                 </h2>
                 <p className="text-white/95 mb-8 font-body leading-relaxed">
-                  Run in place with high knees to reach the enemy base. Pure cardio HIIT workout!
+                  Run in place with high knees to reach the enemy base at 50% distance! Beat the enemy before they catch you in this HIIT workout.
                 </p>
                 <Link href="/play/agawan-base" className="block">
                   <KineticButton variant="danger" size="md" className="w-full">

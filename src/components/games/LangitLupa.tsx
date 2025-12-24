@@ -10,6 +10,8 @@ import { isSquatting, getUserHeight, calculateAngle } from '@/utils/posePhysics'
 import CalibrationCheck from '@/components/game/CalibrationCheck';
 import ResultModal from '@/components/game/ResultModal';
 import TutorialModal from '@/components/game/TutorialModal';
+import GameMechanicsModal from '@/components/game/GameMechanicsModal';
+import GameHUD from '@/components/game/GameHUD';
 
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'over';
 type PoseCommand = 'LANGIT' | 'LUPA'; // Langit = Heaven (Stand/Jump), Lupa = Earth (Squat)
@@ -36,7 +38,8 @@ export default function LangitLupa(): React.ReactElement {
   const [finalScore, setFinalScore] = useState(0);
   const [finalCalories, setFinalCalories] = useState(0);
   const [userHeight, setUserHeight] = useState<number | null>(null);
-  const [showTutorial, setShowTutorial] = useState(true); // Tutorial modal visibility
+  const [showMechanics, setShowMechanics] = useState(true); // Mechanics modal visibility
+  const [showTutorial, setShowTutorial] = useState(false); // Tutorial modal visibility
   const [isUnlocked, setIsUnlocked] = useState(false); // Challenge completion status
 
   // Refs
@@ -481,18 +484,26 @@ export default function LangitLupa(): React.ReactElement {
             </div>
           )}
 
+          {/* START Button in Ready State */}
+          {gameState === 'ready' && (
+            <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-auto">
+              <button
+                onClick={startCountdown}
+                className="px-12 py-6 bg-brand-yellow hover:bg-yellow-500 text-black font-display font-bold text-2xl rounded-2xl shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                START
+              </button>
+            </div>
+          )}
+
           {/* HUD Overlay */}
-          <div className="absolute top-4 left-4 right-4 z-30 bg-black/70 p-4 rounded-lg">
-            <p className="text-lg font-semibold mb-2">{getStatusText()}</p>
-            <p className="text-sm">
-              Score: <span className="font-bold">{score}</span> | Level:{' '}
-              <span className="font-bold">{level}</span> | Reaction Time:{' '}
-              <span className="font-bold">{reactionTime}ms</span>
-            </p>
-            {!isDetecting && gameState === 'playing' && (
-              <p className="text-yellow-400 text-sm mt-2">No pose detected. Make sure you&apos;re visible!</p>
-            )}
-          </div>
+          <GameHUD
+            status={getStatusText()}
+            score={score}
+            level={level}
+            reactionTime={reactionTime}
+            showPoseWarning={!isDetecting && gameState === 'playing'}
+          />
         </motion.section>
       )}
 
@@ -508,6 +519,20 @@ export default function LangitLupa(): React.ReactElement {
           }}
         />
       )}
+
+      {/* Game Mechanics Modal */}
+      <GameMechanicsModal
+        gameType="langit-lupa"
+        isOpen={showMechanics}
+        onClose={() => {
+          setShowMechanics(false);
+          setShowTutorial(false);
+        }}
+        onContinue={() => {
+          setShowMechanics(false);
+          setShowTutorial(true);
+        }}
+      />
 
       {/* Tutorial Modal */}
       <TutorialModal

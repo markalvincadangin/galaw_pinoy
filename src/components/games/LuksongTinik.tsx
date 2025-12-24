@@ -9,6 +9,8 @@ import { useGameFeedback, FeedbackPopup } from '@/hooks/useGameFeedback';
 import CalibrationCheck from '@/components/game/CalibrationCheck';
 import ResultModal from '@/components/game/ResultModal';
 import TutorialModal from '@/components/game/TutorialModal';
+import GameMechanicsModal from '@/components/game/GameMechanicsModal';
+import GameHUD from '@/components/game/GameHUD';
 import { saveGameResult } from '@/app/actions/game';
 
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'paused' | 'over';
@@ -54,7 +56,8 @@ export default function LuksongTinik(): React.ReactElement {
   const [jumpStartX, setJumpStartX] = useState<number | null>(null); // Track X position at jump start for stability calculation
   const [previousHipY, setPreviousHipY] = useState<number | null>(null); // Track previous hip Y for velocity calculation
   const [hipVelocity, setHipVelocity] = useState(0); // Current hip velocity for stamina regen logic
-  const [showTutorial, setShowTutorial] = useState(true); // Tutorial modal visibility
+  const [showMechanics, setShowMechanics] = useState(true); // Mechanics modal visibility
+  const [showTutorial, setShowTutorial] = useState(false); // Tutorial modal visibility
   const [isUnlocked, setIsUnlocked] = useState(false); // Challenge completion status
 
   // Timer interval ref
@@ -244,6 +247,12 @@ export default function LuksongTinik(): React.ReactElement {
     setCooldown(false);
     startGameTimer();
     
+    // Establish ground hip position baseline when level starts
+    if (landmarks?.leftHip && landmarks?.rightHip) {
+      const avgHipY = (landmarks.leftHip.y + landmarks.rightHip.y) / 2;
+      setGroundHipY(avgHipY);
+    }
+    
     // Start strategic stamina regeneration (only when standing still)
     if (staminaRegenIntervalRef.current) {
       clearInterval(staminaRegenIntervalRef.current);
@@ -257,7 +266,7 @@ export default function LuksongTinik(): React.ReactElement {
         return newStamina;
       });
     }, 1000); // Check every second
-  }, [startGameTimer, hipVelocity, showTutorial]);
+  }, [startGameTimer, hipVelocity, showTutorial, landmarks]);
 
   // Start countdown
   const startCountdown = useCallback(() => {
@@ -362,24 +371,12 @@ export default function LuksongTinik(): React.ReactElement {
     }
   }, [hipVelocity, isUnlocked, showTutorial]);
 
-  // Establish ground hip position when game starts
+  // Reset ground position when game state changes (but not when starting level)
   useEffect(() => {
-    if (gameState === 'playing' && landmarks && !groundHipY) {
-      const leftHip = landmarks.leftHip;
-      const rightHip = landmarks.rightHip;
-      
-      if (leftHip && rightHip) {
-        // Use average of left and right hip as ground position
-        const avgHipY = (leftHip.y + rightHip.y) / 2;
-        setGroundHipY(avgHipY);
-      }
-    }
-    
-    // Reset ground position when game state changes
-    if (gameState !== 'playing') {
+    if (gameState !== 'playing' && groundHipY !== null) {
       setGroundHipY(null);
     }
-  }, [gameState, landmarks, groundHipY]);
+  }, [gameState, groundHipY]);
 
   // Check jump detection with hip-based logic and combo system
   useEffect(() => {
@@ -731,41 +728,14 @@ export default function LuksongTinik(): React.ReactElement {
           </div>
 
           {/* HUD Overlay */}
-          <div className="absolute top-4 left-4 right-4 z-30 bg-black/70 p-4 rounded-lg">
-            <p className="text-lg font-semibold mb-2">{getStatusText()}</p>
-            <p className="text-sm mb-2">
-              Score: <span className="font-bold">{score}</span> | Level:{' '}
-              <span className="font-bold">{level}</span> | Time:{' '}
-              <span className="font-bold">{timer}</span>s
-            </p>
-            
-            {/* Stamina Bar */}
-            <div className="mb-2">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-white/80">Stamina</span>
-                <span className="text-xs font-bold" style={{ color: stamina < MIN_STAMINA_TO_JUMP ? '#ef4444' : '#22c55e' }}>
-                  {Math.round(stamina)}%
-                </span>
-              </div>
-              <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full transition-all duration-300 rounded-full"
-                  style={{
-                    width: `${stamina}%`,
-                    background: stamina < MIN_STAMINA_TO_JUMP
-                      ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)'
-                      : stamina < 50
-                        ? 'linear-gradient(90deg, #f59e0b 0%, #ef4444 100%)'
-                        : 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)',
-                  }}
-                />
-              </div>
-            </div>
-            
-            {!isDetecting && gameState === 'playing' && (
-              <p className="text-yellow-400 text-sm mt-2">No pose detected. Make sure you&apos;re visible!</p>
-            )}
-          </div>
+          <GameHUD
+            status={getStatusText()}
+            score={score}
+            level={level}
+            timer={timer}
+            stamina={stamina}
+            showPoseWarning={!isDetecting && gameState === 'playing'}
+          />
 
           {/* Combo Popup Animations */}
           <AnimatePresence>
@@ -823,6 +793,20 @@ export default function LuksongTinik(): React.ReactElement {
           }}
         />
       )}
+
+      {/* Game Mechanics Modal */}
+      <GameMechanicsModal
+        gameType="luksong-tinik"
+        isOpen={showMechanics}
+        onClose={() => {
+          setShowMechanics(false);
+          setShowTutorial(false);
+        }}
+        onContinue={() => {
+          setShowMechanics(false);
+          setShowTutorial(true);
+        }}
+      />
 
       {/* Tutorial Modal */}
       <TutorialModal
