@@ -31,21 +31,21 @@ export default function Play() {
               Step back until your full body is visible on camera. Ready to move?
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-7xl mx-auto w-full">
               {/* Luksong Tinik Card */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="glass-modern rounded-3xl p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                className="glass-modern rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group h-full flex flex-col"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-yellow to-yellow-600 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                  <Zap className="w-8 h-8 text-white" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-yellow to-yellow-600 flex items-center justify-center mb-4 sm:mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 flex-shrink-0">
+                  <Zap className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4 drop-shadow-md">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-white mb-3 sm:mb-4 drop-shadow-md">
                   Luksong Tinik
                 </h2>
-                <p className="text-white/95 mb-8 font-body leading-relaxed">
+                <p className="text-sm sm:text-base text-white/95 mb-6 sm:mb-8 font-body leading-relaxed flex-1">
                   Jump over hurdles moving down the screen! Manage your stamina system and perfect your timing across 5 progressive levels.
                 </p>
                 <Link href="/play/luksong-tinik" className="block">
@@ -60,15 +60,15 @@ export default function Play() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="glass-modern rounded-3xl p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                className="glass-modern rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group h-full flex flex-col"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-red to-red-700 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                  <Users className="w-8 h-8 text-white" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-red to-red-700 flex items-center justify-center mb-4 sm:mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 flex-shrink-0">
+                  <Users className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4 drop-shadow-md">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-white mb-3 sm:mb-4 drop-shadow-md">
                   Patintero
                 </h2>
-                <p className="text-white/95 mb-8 font-body leading-relaxed">
+                <p className="text-sm sm:text-base text-white/95 mb-6 sm:mb-8 font-body leading-relaxed flex-1">
                   Dodge blockers by moving left/right between three lanes. Collect power-ups, trigger Fever Mode for 2x score, and survive as long as possible!
                 </p>
                 <Link href="/play/patintero" className="block">
@@ -83,15 +83,15 @@ export default function Play() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="glass-modern rounded-3xl p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                className="glass-modern rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group h-full flex flex-col"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-blue-700 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                  <Heart className="w-8 h-8 text-white" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-blue to-blue-700 flex items-center justify-center mb-4 sm:mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 flex-shrink-0">
+                  <Heart className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4 drop-shadow-md">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-white mb-3 sm:mb-4 drop-shadow-md">
                   Langit-Lupa
                 </h2>
-                <p className="text-white/95 mb-8 font-body leading-relaxed">
+                <p className="text-sm sm:text-base text-white/95 mb-6 sm:mb-8 font-body leading-relaxed flex-1">
                   React quickly to commands! Stand/Jump for LANGIT (Heaven) or Squat for LUPA (Earth). Reaction time gets faster each level.
                 </p>
                 <Link href="/play/langit-lupa" className="block">
@@ -106,15 +106,15 @@ export default function Play() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="glass-modern rounded-3xl p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                className="glass-modern rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group h-full flex flex-col"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-blue-700 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                  <Activity className="w-8 h-8 text-white" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-blue to-blue-700 flex items-center justify-center mb-4 sm:mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 flex-shrink-0">
+                  <Activity className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4 drop-shadow-md">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-white mb-3 sm:mb-4 drop-shadow-md">
                   Piko
                 </h2>
-                <p className="text-white/95 mb-8 font-body leading-relaxed">
+                <p className="text-sm sm:text-base text-white/95 mb-6 sm:mb-8 font-body leading-relaxed flex-1">
                   Balance on one leg and hop to target cells on a 3×5 grid. Complete all 15 cells to win!
                 </p>
                 <Link href="/play/piko" className="block">
@@ -129,15 +129,15 @@ export default function Play() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="glass-modern rounded-3xl p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                className="glass-modern rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group h-full flex flex-col"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-red to-red-700 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                  <Flame className="w-8 h-8 text-white" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-red to-red-700 flex items-center justify-center mb-4 sm:mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 flex-shrink-0">
+                  <Flame className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4 drop-shadow-md">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-white mb-3 sm:mb-4 drop-shadow-md">
                   Agawan Base
                 </h2>
-                <p className="text-white/95 mb-8 font-body leading-relaxed">
+                <p className="text-sm sm:text-base text-white/95 mb-6 sm:mb-8 font-body leading-relaxed flex-1">
                   Run in place with high knees to reach the enemy base at 50% distance! Beat the enemy before they catch you in this HIIT workout.
                 </p>
                 <Link href="/play/agawan-base" className="block">

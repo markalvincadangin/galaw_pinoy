@@ -15,6 +15,7 @@ const authStateCache = {
   isLoading: true,
   lastChecked: 0,
   userEmail: null as string | null,
+  isCheckingAdmin: false, // Flag to prevent multiple simultaneous admin checks
 };
 
 const CACHE_DURATION = 60000; // Cache for 1 minute
@@ -66,11 +67,12 @@ export default function Navigation() {
         authStateCache.lastChecked = now;
         setIsLoggedIn(newIsLoggedIn);
         
-        // Check if user is admin
-        if (userEmail) {
+        // Check if user is admin (only if not already checking)
+        if (userEmail && !authStateCache.isCheckingAdmin) {
           // Check admin status (will use cache internally if email hasn't changed)
           const emailChanged = authStateCache.userEmail !== userEmail;
           if (emailChanged || forceRefresh || cacheAge >= CACHE_DURATION) {
+            authStateCache.isCheckingAdmin = true;
             try {
               const response = await fetch('/api/check-admin');
               if (response.ok) {
@@ -87,6 +89,8 @@ export default function Navigation() {
               if (isMounted) {
                 setIsAdmin(false);
               }
+            } finally {
+              authStateCache.isCheckingAdmin = false;
             }
           } else {
             // Use cached admin status
@@ -157,19 +161,22 @@ export default function Navigation() {
       authStateCache.lastChecked = Date.now();
       setIsLoggedIn(newIsLoggedIn);
       
-      // Check admin status on auth change (force refresh)
-      if (newIsLoggedIn && userEmail) {
+      // Check admin status on auth change (force refresh) - only if not already checking
+      if (newIsLoggedIn && userEmail && !authStateCache.isCheckingAdmin) {
+        authStateCache.isCheckingAdmin = true;
         fetch('/api/check-admin')
           .then(res => res.json())
           .then(data => {
             const newIsAdmin = data.isAdmin || false;
             authStateCache.isAdmin = newIsAdmin;
+            authStateCache.isCheckingAdmin = false;
             if (isMounted) {
               setIsAdmin(newIsAdmin);
             }
           })
           .catch(() => {
             authStateCache.isAdmin = false;
+            authStateCache.isCheckingAdmin = false;
             if (isMounted) {
               setIsAdmin(false);
             }
@@ -219,7 +226,7 @@ export default function Navigation() {
   // Desktop navigation items
   const desktopNavItems = [
     { href: '/', label: 'Home' },
-    { href: '/play', label: 'Play' },
+    { href: '/play', label: 'Games' },
     { href: '/about', label: 'About' },
     { href: '/laro', label: 'Laro' },
     { href: '/health', label: 'Health' },
@@ -231,7 +238,7 @@ export default function Navigation() {
       {/* Desktop: Modern Floating Glass Navigation */}
       <nav className="hidden md:block fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-[95vw] px-4">
         <motion.div
-          className="glass-modern rounded-full px-4 md:px-6 lg:px-8 py-3 md:py-3.5 shadow-2xl mx-auto relative overflow-hidden"
+          className="glass-modern rounded-full px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-3.5 shadow-2xl mx-auto relative overflow-hidden"
           initial={{ opacity: 0, y: -20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -243,20 +250,20 @@ export default function Navigation() {
           {/* Subtle gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-brand-blue/5 via-transparent to-brand-red/5 rounded-full pointer-events-none" />
           
-          <ul className="flex items-center gap-2 md:gap-3 lg:gap-4 xl:gap-5 list-none m-0 p-0 flex-nowrap relative z-10">
+          <ul className="flex items-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 xl:gap-5 list-none m-0 p-0 flex-nowrap relative z-10 overflow-x-auto scrollbar-hide">
             {desktopNavItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <li key={item.href} className="m-0 p-0">
                   <motion.div
-                    whileHover={{ y: -2 }}
-                    whileTap={{ y: 0 }}
+                    whileHover={{ y: -3, scale: 1.05 }}
+                    whileTap={{ y: 0, scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                   >
                     <Link
                       href={item.href}
                       className={clsx(
-                        'relative text-sm md:text-base font-display font-bold uppercase tracking-wide py-2.5 px-3 md:px-4 transition-all duration-300 whitespace-nowrap flex-shrink-0 block',
+                        'relative text-xs sm:text-sm md:text-base font-display font-bold uppercase tracking-wide py-2.5 px-2 sm:px-3 md:px-4 transition-all duration-300 whitespace-nowrap flex-shrink-0 block',
                         isActive 
                           ? 'text-brand-yellow' 
                           : 'text-white/90 hover:text-white'
@@ -272,13 +279,23 @@ export default function Navigation() {
                         />
                       )}
                       
-                      {/* Hover background */}
+                      {/* Hover background - more prominent */}
                       <motion.div
-                        className="absolute inset-0 rounded-full bg-white/5"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileHover={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.2 }}
+                        className="absolute inset-0 rounded-full bg-white/10 backdrop-blur-sm"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileHover={{ opacity: 1, scale: 1.05 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
                       />
+                      
+                      {/* Hover glow effect */}
+                      {!isActive && (
+                        <motion.div
+                          className="absolute inset-0 rounded-full bg-brand-blue/20 blur-lg"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          whileHover={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.25, ease: 'easeOut' }}
+                        />
+                      )}
                       
                       {/* Text with glow effect */}
                       <span 
@@ -318,49 +335,61 @@ export default function Navigation() {
               </li>
             )}
             
+            {/* Admin Link - Only render when admin to prevent layout shift */}
+            {!isLoading && isLoggedIn && isAdmin && (
+              <li className="m-0 p-0">
+                <motion.div
+                  whileHover={{ y: -3, scale: 1.08 }}
+                  whileTap={{ y: 0, scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                >
+                  <Link
+                    href="/admin"
+                    className={clsx(
+                      'relative flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-full transition-all duration-300',
+                      pathname === '/admin'
+                        ? 'bg-brand-yellow/20 text-brand-yellow'
+                        : 'text-white/90 hover:text-white'
+                    )}
+                  >
+                    {/* Hover background for admin link */}
+                    {pathname !== '/admin' && (
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-white/10 backdrop-blur-sm"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileHover={{ opacity: 1, scale: 1.05 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                      />
+                    )}
+                    <Shield className={clsx(
+                      'w-4 h-4 transition-all duration-300 relative z-10',
+                      pathname === '/admin' && 'drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]'
+                    )} />
+                    <span className="text-sm font-display font-bold uppercase tracking-wide relative z-10">
+                      Admin
+                    </span>
+                    {pathname === '/admin' && (
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-brand-yellow/20 blur-md"
+                        layoutId="adminNavBg"
+                        initial={false}
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                </motion.div>
+              </li>
+            )}
+            
+            {/* Profile/Login Links */}
             {!isLoading && (
               <>
                 {isLoggedIn ? (
                   <>
-                    {isAdmin && (
-                      <li className="m-0 p-0">
-                        <motion.div
-                          whileHover={{ y: -2, scale: 1.05 }}
-                          whileTap={{ y: 0, scale: 0.95 }}
-                          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                        >
-                          <Link
-                            href="/admin"
-                            className={clsx(
-                              'relative flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-full transition-all duration-300',
-                              pathname === '/admin'
-                                ? 'bg-brand-yellow/20 text-brand-yellow'
-                                : 'text-white/90 hover:text-white hover:bg-white/10'
-                            )}
-                          >
-                            <Shield className={clsx(
-                              'w-4 h-4 transition-all duration-300',
-                              pathname === '/admin' && 'drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]'
-                            )} />
-                            <span className="text-sm font-display font-bold uppercase tracking-wide hidden lg:inline">
-                              Admin
-                            </span>
-                            {pathname === '/admin' && (
-                              <motion.div
-                                className="absolute inset-0 rounded-full bg-brand-yellow/20 blur-md"
-                                layoutId="adminNavBg"
-                                initial={false}
-                                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                              />
-                            )}
-                          </Link>
-                        </motion.div>
-                      </li>
-                    )}
                     <li className="m-0 p-0">
                       <motion.div
-                        whileHover={{ y: -2, scale: 1.05 }}
-                        whileTap={{ y: 0, scale: 0.95 }}
+                        whileHover={{ y: -3, scale: 1.08 }}
+                        whileTap={{ y: 0, scale: 0.98 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                       >
                         <Link
@@ -369,14 +398,23 @@ export default function Navigation() {
                             'relative flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-full transition-all duration-300',
                             pathname === '/profile'
                               ? 'bg-brand-yellow/20 text-brand-yellow'
-                              : 'text-white/90 hover:text-white hover:bg-white/10'
+                              : 'text-white/90 hover:text-white'
                           )}
                         >
+                          {/* Hover background for profile link */}
+                          {pathname !== '/profile' && (
+                            <motion.div
+                              className="absolute inset-0 rounded-full bg-white/10 backdrop-blur-sm"
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              whileHover={{ opacity: 1, scale: 1.05 }}
+                              transition={{ duration: 0.2, ease: 'easeOut' }}
+                            />
+                          )}
                           <User className={clsx(
-                            'w-4 h-4 transition-all duration-300',
+                            'w-4 h-4 transition-all duration-300 relative z-10',
                             pathname === '/profile' && 'drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]'
                           )} />
-                          <span className="text-sm font-display font-bold uppercase tracking-wide hidden lg:inline">
+                          <span className="text-sm font-display font-bold uppercase tracking-wide relative z-10">
                             Profile
                           </span>
                           {pathname === '/profile' && (
@@ -392,25 +430,33 @@ export default function Navigation() {
                     </li>
                     <li className="m-0 p-0">
                       <motion.div
-                        whileHover={{ y: -2, scale: 1.05 }}
-                        whileTap={{ y: 0, scale: 0.95 }}
+                        whileHover={{ y: -3, scale: 1.08 }}
+                        whileTap={{ y: 0, scale: 0.98 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                       >
                         <button
                           onClick={handleSignOut}
-                          className="relative flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-full text-white/90 hover:text-white hover:bg-white/10 transition-all duration-300 text-sm font-display font-bold uppercase tracking-wide"
+                          className="relative flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-full text-white/90 hover:text-white transition-all duration-300 text-sm font-display font-bold uppercase tracking-wide"
                         >
-                          <LogOut className="w-4 h-4" />
-                          <span className="hidden lg:inline">Logout</span>
+                          {/* Hover background for logout button */}
+                          <motion.div
+                            className="absolute inset-0 rounded-full bg-white/10 backdrop-blur-sm"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileHover={{ opacity: 1, scale: 1.05 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                          />
+                          <LogOut className="w-4 h-4 relative z-10" />
+                          <span className="relative z-10">Logout</span>
                         </button>
                       </motion.div>
                     </li>
                   </>
                 ) : (
-                  <li className="m-0 p-0">
+                  <>
+                    <li className="m-0 p-0">
                     <motion.div
-                      whileHover={{ y: -2, scale: 1.05 }}
-                      whileTap={{ y: 0, scale: 0.95 }}
+                      whileHover={{ y: -3, scale: 1.08 }}
+                      whileTap={{ y: 0, scale: 0.98 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                     >
                       <Link
@@ -419,9 +465,18 @@ export default function Navigation() {
                           'relative text-sm md:text-base font-display font-bold uppercase tracking-wide py-2.5 px-4 md:px-5 rounded-full transition-all duration-300 whitespace-nowrap flex-shrink-0 block',
                           pathname === '/login'
                             ? 'bg-brand-yellow/20 text-brand-yellow'
-                            : 'bg-brand-blue/30 hover:bg-brand-blue/40 text-white'
+                            : 'bg-brand-blue/30 text-white'
                         )}
                       >
+                        {/* Hover background for login button */}
+                        {pathname !== '/login' && (
+                          <motion.div
+                            className="absolute inset-0 rounded-full bg-brand-blue/50 backdrop-blur-sm"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileHover={{ opacity: 1, scale: 1.05 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                          />
+                        )}
                         {pathname === '/login' && (
                           <motion.div
                             className="absolute inset-0 rounded-full bg-brand-yellow/20 blur-md"
@@ -430,10 +485,11 @@ export default function Navigation() {
                             transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                           />
                         )}
-                        <span className="relative z-10">Login</span>
+                        <span className="relative z-10 drop-shadow-md">Login</span>
                       </Link>
                     </motion.div>
                   </li>
+                  </>
                 )}
               </>
             )}
@@ -655,17 +711,18 @@ export default function Navigation() {
                           </Link>
                         );
                       })}
+                      {/* Admin Link - Accessible on Mobile */}
                       {isLoggedIn && isAdmin && (
                         <Link
                           href="/admin"
                           onClick={() => setIsMobileMenuOpen(false)}
                           className={clsx(
                             'flex items-center gap-2 px-4 py-3 rounded-lg transition-all duration-200',
-                            pathname === '/admin' ? 'bg-white/10 text-brand-yellow' : 'bg-white/5 text-white/95 hover:bg-white/10'
+                            pathname === '/admin' ? 'bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30' : 'bg-white/5 text-white/95 hover:bg-white/10 border border-white/10'
                           )}
                         >
                           <Shield className="w-5 h-5 flex-shrink-0" />
-                          <span className="text-sm font-semibold">Admin</span>
+                          <span className="text-sm font-semibold">Admin Dashboard</span>
                         </Link>
                       )}
                       {isLoggedIn && (
