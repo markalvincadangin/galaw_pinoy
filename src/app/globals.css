@@ -1,0 +1,272 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  /* Brand Colors - Galaw Pinoy */
+  --color-brand-blue: #2563EB; /* Trust, movement, youth */
+  --color-brand-red: #DC2626; /* Energy, strength, passion */
+  --color-brand-yellow: #FBBF24; /* Joy, culture, community */
+  --color-brand-dark: #0F172A; /* Deep slate for backgrounds */
+  --color-brand-light: #F8FAFC; /* Light slate for contrast */
+  
+  /* Font Families */
+  --font-display: var(--font-barlow);
+  --font-body: var(--font-inter);
+  --font-sans: var(--font-inter);
+  
+  /* Cultural Patterns - Enhanced Banig/Okir Pattern */
+  --background-image-banig-pattern: 
+    repeating-linear-gradient(
+      45deg,
+      rgba(37, 99, 235, 0.03) 0px,
+      rgba(37, 99, 235, 0.03) 1px,
+      transparent 1px,
+      transparent 12px,
+      rgba(220, 38, 38, 0.03) 12px,
+      rgba(220, 38, 38, 0.03) 13px,
+      transparent 13px,
+      transparent 24px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(251, 191, 36, 0.03) 0px,
+      rgba(251, 191, 36, 0.03) 1px,
+      transparent 1px,
+      transparent 12px,
+      rgba(37, 99, 235, 0.02) 12px,
+      rgba(37, 99, 235, 0.02) 13px,
+      transparent 13px,
+      transparent 24px
+    );
+  
+  /* Animations */
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-shake: shake 0.5s ease-in-out;
+  --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background-color: var(--color-brand-dark);
+  color: rgb(248, 250, 252); /* slate-50 - brighter for better contrast */
+  font-family: var(--font-body), sans-serif;
+  position: relative;
+  /* Prevent pull-to-refresh on mobile */
+  overscroll-behavior-y: none;
+  /* Prevent text selection during gameplay */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile game optimizations */
+@media (max-width: 768px) {
+  body {
+    /* Prevent zoom on double tap */
+    touch-action: pan-x pan-y;
+  }
+  
+  /* Prevent text selection during gameplay */
+  .touch-none {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+  }
+}
+
+/* Improve text contrast globally */
+h1, h2, h3, h4, h5, h6 {
+  color: rgb(255, 255, 255); /* Pure white for headings */
+  font-weight: 700;
+}
+
+p, span, div {
+  color: rgb(241, 245, 249); /* slate-100 for body text */
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-brand-dark);
+  background-image: var(--background-image-banig-pattern);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.4;
+}
+
+/* Glassmorphism utility class */
+.glass-panel {
+  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+/* Custom banig pattern background class */
+.bg-banig-pattern {
+  background-color: var(--color-brand-light);
+  position: relative;
+}
+
+.bg-banig-pattern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: var(--background-image-banig-pattern);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-brand-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-blue);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #002d87;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-blue) var(--color-brand-light);
+}
+
+/* Hide scrollbar for navigation */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 20s ease-in-out infinite;
+}
+
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Kinetic Culture Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-float {
+  animation: var(--animate-float);
+}
+
+.animate-shake {
+  animation: var(--animate-shake);
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+    filter: blur(40px);
+  }
+  50% {
+    opacity: 0.8;
+    filter: blur(50px);
+  }
+}
+
+.animate-pulse-glow {
+  animation: var(--animate-pulse-glow);
+}
+
+/* Banig Pattern Utility Class */
+.bg-banig-pattern {
+  background-color: var(--color-brand-dark);
+  background-image: var(--background-image-banig-pattern);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+}
+
+/* Modern Glass Effect - Enhanced for better contrast */
+.glass-modern {
+  background: rgba(15, 23, 42, 0.85); /* More opaque dark background */
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Cultural Texture Overlay */
+.cultural-texture {
+  position: relative;
+}
+
+.cultural-texture::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(90deg, transparent 0%, rgba(251, 191, 36, 0.05) 50%, transparent 100%),
+    linear-gradient(0deg, transparent 0%, rgba(37, 99, 235, 0.05) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
