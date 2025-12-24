@@ -145,7 +145,7 @@ export default function Piko(): React.ReactElement {
 
     // Show result modal
     setShowResultModal(true);
-  }, [score, playGameOver, isMusicPlaying, toggleMusic]);
+  }, [score, playGameOver, isMusicPlaying, toggleMusic, gameState]);
 
   // Begin playing
   const beginPlaying = useCallback(() => {
@@ -197,7 +197,16 @@ export default function Piko(): React.ReactElement {
       return;
     }
     
-    if (gameState !== 'playing' || !landmarks) {
+    if (gameState !== 'playing') {
+      setIsOneLegMode(false);
+      wasOneLegModeRef.current = false;
+      balanceGracePeriodStartRef.current = null;
+      return;
+    }
+
+    // WAIT FOR POSE DETECTION TO INITIALIZE - This is critical!
+    // If still loading, pose detection is not ready yet - don't run game logic
+    if (isLoading || !landmarks) {
       setIsOneLegMode(false);
       wasOneLegModeRef.current = false;
       balanceGracePeriodStartRef.current = null;
@@ -248,7 +257,7 @@ export default function Piko(): React.ReactElement {
 
     // Update previous state
     wasOneLegModeRef.current = isOneLegNow;
-  }, [gameState, landmarks, showTutorial]);
+  }, [gameState, landmarks, isLoading, showTutorial]);
 
   // Detect hop while in one-leg mode
   useEffect(() => {
@@ -304,7 +313,7 @@ export default function Piko(): React.ReactElement {
     }
 
     previousHipYRef.current = avgHipY;
-  }, [gameState, isOneLegMode, landmarks, currentTarget, triggerFeedback, playScore, endGame]);
+  }, [gameState, isOneLegMode, landmarks, isLoading, currentTarget, triggerFeedback, playScore, endGame]);
 
   // Get status text
   const getStatusText = () => {
@@ -454,7 +463,7 @@ export default function Piko(): React.ReactElement {
               current: grid.filter((c) => c.isCompleted).length,
               total: grid.length,
             }}
-            showPoseWarning={!isDetecting && gameState === 'playing'}
+            showPoseWarning={!isDetecting && gameState === 'playing' && !showResultModal}
           />
 
           {/* Action Button */}
