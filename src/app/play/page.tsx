@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import KineticButton from '@/components/ui/KineticButton';
-import { Zap, Users } from 'lucide-react';
+import { Zap, Users, Heart, Activity, Flame } from 'lucide-react';
 
 export default function Play() {
   return (
@@ -31,7 +31,7 @@ export default function Play() {
               Step back until your full body is visible on camera. Ready to move?
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
               {/* Luksong Tinik Card */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -39,14 +39,14 @@ export default function Play() {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="glass-modern rounded-3xl p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-blue-700 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-yellow to-yellow-600 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
                   <Zap className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4 drop-shadow-md">
                   Luksong Tinik
                 </h2>
                 <p className="text-white/95 mb-8 font-body leading-relaxed">
-                  Jump over virtual hurdles. Test your flexibility and coordination.
+                  Jump over virtual hurdles with stamina management. Test your flexibility and coordination.
                 </p>
                 <Link href="/play/luksong-tinik" className="block">
                   <KineticButton variant="primary" size="md" className="w-full">
@@ -69,9 +69,78 @@ export default function Play() {
                   Patintero
                 </h2>
                 <p className="text-white/95 mb-8 font-body leading-relaxed">
-                  Dodge blockers and move through lanes. Build agility and reaction time.
+                  Dodge blockers, collect power-ups, and trigger Fever Mode. Build agility and reaction time.
                 </p>
                 <Link href="/play/patintero" className="block">
+                  <KineticButton variant="danger" size="md" className="w-full">
+                    Play Now
+                  </KineticButton>
+                </Link>
+              </motion.div>
+
+              {/* Langit-Lupa Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="glass-modern rounded-3xl p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-blue-700 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  <Heart className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4 drop-shadow-md">
+                  Langit-Lupa
+                </h2>
+                <p className="text-white/95 mb-8 font-body leading-relaxed">
+                  Match poses quickly: LANGIT (Stand/Jump) or LUPA (Squat). Improves reaction time and endurance.
+                </p>
+                <Link href="/play/langit-lupa" className="block">
+                  <KineticButton variant="primary" size="md" className="w-full">
+                    Play Now
+                  </KineticButton>
+                </Link>
+              </motion.div>
+
+              {/* Piko Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="glass-modern rounded-3xl p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-blue-700 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  <Activity className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4 drop-shadow-md">
+                  Piko
+                </h2>
+                <p className="text-white/95 mb-8 font-body leading-relaxed">
+                  Balance on one leg and hop to target cells. Improves balance, coordination, and focus.
+                </p>
+                <Link href="/play/piko" className="block">
+                  <KineticButton variant="primary" size="md" className="w-full">
+                    Play Now
+                  </KineticButton>
+                </Link>
+              </motion.div>
+
+              {/* Agawan Base Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="glass-modern rounded-3xl p-8 md:p-10 cultural-texture hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-red to-red-700 flex items-center justify-center mb-6 mx-auto transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  <Flame className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-4 drop-shadow-md">
+                  Agawan Base
+                </h2>
+                <p className="text-white/95 mb-8 font-body leading-relaxed">
+                  Run in place with high knees to reach the enemy base. Pure cardio HIIT workout!
+                </p>
+                <Link href="/play/agawan-base" className="block">
                   <KineticButton variant="danger" size="md" className="w-full">
                     Play Now
                   </KineticButton>

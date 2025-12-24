@@ -46,8 +46,9 @@ export function useGameSound(): UseGameSoundReturn {
   };
 
   // Load sound effects (volume checked before playing, not in options)
+  // Preload jump.mp3 for instant playback on velocity triggers
   // use-sound returns [playFunction, { sound, stop, pause }]
-  const [playJumpSound, { sound: jumpSound }] = useSound('/sounds/jump.mp3', soundOptions);
+  const [playJumpSound, { sound: jumpSound }] = useSound('/sounds/jump.mp3', { ...soundOptions, preload: true });
   const [playScoreSound, { sound: scoreSound }] = useSound('/sounds/score.mp3', soundOptions);
   const [playGameOverSound, { sound: gameOverSound }] = useSound('/sounds/gameover.mp3', soundOptions);
 
@@ -59,20 +60,22 @@ export function useGameSound(): UseGameSoundReturn {
 
   // Log sound loading status (Howl instances have state property: 'unloaded', 'loading', 'loaded')
   useEffect(() => {
+    // Type-safe sound state checking
+    type HowlSound = { state?: () => string };
     if (jumpSound) {
-      const state = (jumpSound as any).state?.() || 'unknown';
+      const state = (jumpSound as unknown as HowlSound).state?.() || 'unknown';
       console.log('[Sound] Jump sound status:', state);
     }
     if (scoreSound) {
-      const state = (scoreSound as any).state?.() || 'unknown';
+      const state = (scoreSound as unknown as HowlSound).state?.() || 'unknown';
       console.log('[Sound] Score sound status:', state);
     }
     if (gameOverSound) {
-      const state = (gameOverSound as any).state?.() || 'unknown';
+      const state = (gameOverSound as unknown as HowlSound).state?.() || 'unknown';
       console.log('[Sound] Game over sound status:', state);
     }
     if (musicSound) {
-      const state = (musicSound as any).state?.() || 'unknown';
+      const state = (musicSound as unknown as HowlSound).state?.() || 'unknown';
       console.log('[Sound] Background music status:', state);
     }
   }, [jumpSound, scoreSound, gameOverSound, musicSound]);

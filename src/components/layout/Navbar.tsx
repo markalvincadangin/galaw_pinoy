@@ -65,7 +65,7 @@ export default function Navbar() {
         </ul>
 
         {/* CTA Button */}
-        <div className="hidden md:block">
+        <div className="hidden md:flex items-center gap-3">
           <Link href="/play">
             <Button variant="primary" className="text-sm px-4 py-2">
               Play Now

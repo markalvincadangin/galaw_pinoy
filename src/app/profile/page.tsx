@@ -10,14 +10,14 @@ import Image from 'next/image';
 export default async function ProfilePage() {
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect('/login?next=/profile');
   }
 
-  const userId = session.user.id;
+  const userId = user.id;
 
   // Fetch user data
   const [userData] = await db
@@ -37,8 +37,8 @@ export default async function ProfilePage() {
   // Calculate stats
   const totalGames = userData?.gamesPlayed || 0;
   const totalCalories = userData?.totalCalories || 0;
-  const username = userData?.username || session.user.email?.split('@')[0] || 'Player';
-  const avatarUrl = userData?.avatarUrl || session.user.user_metadata?.avatar_url;
+  const username = userData?.username || user.email?.split('@')[0] || 'Player';
+  const avatarUrl = userData?.avatarUrl || user.user_metadata?.avatar_url;
 
   return (
     <>
@@ -69,7 +69,7 @@ export default async function ProfilePage() {
                   <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-2 drop-shadow-lg">
                     {username}
                   </h1>
-                  <p className="text-white/90 mb-4 font-body">{session.user.email}</p>
+                  <p className="text-white/90 mb-4 font-body">{user.email}</p>
                   {userData?.createdAt && (
                     <p className="text-sm text-white/80 flex items-center justify-center md:justify-start gap-2 font-body">
                       <Calendar className="w-4 h-4" />

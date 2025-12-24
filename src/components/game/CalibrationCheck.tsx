@@ -12,8 +12,10 @@ interface CalibrationCheckProps {
 // Pixel distance thresholds for calibration
 const MIN_ANKLE_DISTANCE_PX = 30; // Minimum distance in pixels (user too far) - relaxed from 50
 const MAX_ANKLE_DISTANCE_PX = 400; // Maximum distance in pixels (user too close) - relaxed from 300
-const MIN_VISIBILITY_SCORE = 0.6; // Minimum visibility score for key landmarks - relaxed from 0.8
+const MIN_VISIBILITY_SCORE = 0.5; // Minimum visibility score for key landmarks - relaxed from 0.6
 const CALIBRATION_DURATION = 1500; // 1.5 seconds in milliseconds - reduced from 3 seconds
+const MOVEMENT_THRESHOLD_PX = 20; // Movement tolerance in pixels before resetting calibration
+const CALIBRATION_TIMEOUT = 10000; // 10 seconds before showing skip button
 
 export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps) {
   const webcamRef = useRef<Webcam>(null);
@@ -23,10 +25,14 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
   const [progress, setProgress] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(2);
   const [showProgress, setShowProgress] = useState(false);
+  const [showSkipButton, setShowSkipButton] = useState(false);
   const calibrationTimerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const videoDimensionsRef = useRef<{ width: number; height: number } | null>(null);
+  const previousLandmarksRef = useRef<{ nose?: { x: number; y: number }; leftAnkle?: { x: number; y: number }; rightAnkle?: { x: number; y: number } } | null>(null);
+  const calibrationStartTimeRef = useRef<number | null>(null);
+  const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get video dimensions for pixel conversion
   useEffect(() => {
@@ -76,20 +82,62 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
     return Math.sqrt(dx * dx + dy * dy);
   };
 
+  // Track calibration start time for timeout
+  useEffect(() => {
+    if (!isLoading && !error && !isCalibrated && landmarks) {
+      if (calibrationStartTimeRef.current === null) {
+        calibrationStartTimeRef.current = Date.now();
+      }
+      
+      // Show skip button after timeout
+      if (!skipTimeoutRef.current) {
+        skipTimeoutRef.current = setTimeout(() => {
+          setShowSkipButton(true);
+        }, CALIBRATION_TIMEOUT);
+      }
+    }
+    
+    return () => {
+      if (skipTimeoutRef.current) {
+        clearTimeout(skipTimeoutRef.current);
+        skipTimeoutRef.current = null;
+      }
+    };
+  }, [isLoading, error, isCalibrated, landmarks]);
+
   // Check calibration status
   useEffect(() => {
     if (isLoading || error || isCalibrated) {
       return;
     }
 
-    // Clear any existing timer
-    if (calibrationTimerRef.current) {
-      clearTimeout(calibrationTimerRef.current);
-      calibrationTimerRef.current = null;
-    }
-
-    // Reset timer and progress if user moves out of position
-    const resetCalibration = () => {
+    // Reset timer and progress if user moves out of position (only if movement is significant)
+    const resetCalibration = (reason?: string) => {
+      // Check if movement is significant before resetting
+      if (previousLandmarksRef.current && landmarks) {
+        const currentNose = landmarks.nose;
+        const prevNose = previousLandmarksRef.current.nose;
+        
+        if (currentNose && prevNose) {
+          const movement = calculatePixelDistance(
+            { x: currentNose.x, y: currentNose.y },
+            { x: prevNose.x, y: prevNose.y }
+          );
+          
+          // Only reset if movement is significant (more than threshold)
+          if (movement <= MOVEMENT_THRESHOLD_PX && reason !== 'position') {
+            // Small movement, don't reset - just update previous landmarks
+            previousLandmarksRef.current = {
+              nose: landmarks.nose ? { x: landmarks.nose.x, y: landmarks.nose.y } : undefined,
+              leftAnkle: landmarks.leftAnkle ? { x: landmarks.leftAnkle.x, y: landmarks.leftAnkle.y } : undefined,
+              rightAnkle: landmarks.rightAnkle ? { x: landmarks.rightAnkle.x, y: landmarks.rightAnkle.y } : undefined,
+            };
+            return; // Don't reset calibration for small movements
+          }
+        }
+      }
+      
+      // Significant movement or position issue - reset calibration
       startTimeRef.current = null;
       setProgress(0);
       setShowProgress(false);
@@ -98,6 +146,15 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = null;
       }
+      
+      // Update previous landmarks
+      if (landmarks) {
+        previousLandmarksRef.current = {
+          nose: landmarks.nose ? { x: landmarks.nose.x, y: landmarks.nose.y } : undefined,
+          leftAnkle: landmarks.leftAnkle ? { x: landmarks.leftAnkle.x, y: landmarks.leftAnkle.y } : undefined,
+          rightAnkle: landmarks.rightAnkle ? { x: landmarks.rightAnkle.x, y: landmarks.rightAnkle.y } : undefined,
+        };
+      }
     };
 
     // Check if required landmarks exist
@@ -105,25 +162,33 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
       setTimeout(() => {
         setCalibrationMessage('Position yourself in frame');
       }, 0);
-      resetCalibration();
+      resetCalibration('position');
       return;
     }
 
-    // Visibility check: nose, left_shoulder, right_shoulder must have visibility > 0.8
+    // Visibility check: nose, left_shoulder, right_shoulder must have visibility > MIN_VISIBILITY_SCORE
     // If visibility is not available (undefined), assume it's detected (MediaPipe already filtered by minDetectionConfidence)
     const noseVisibility = landmarks.nose.visibility ?? 1.0;
     const leftShoulderVisibility = landmarks.leftShoulder.visibility ?? 1.0;
     const rightShoulderVisibility = landmarks.rightShoulder.visibility ?? 1.0;
 
+    // Check for low confidence/lighting issues
     if (
       noseVisibility < MIN_VISIBILITY_SCORE ||
       leftShoulderVisibility < MIN_VISIBILITY_SCORE ||
       rightShoulderVisibility < MIN_VISIBILITY_SCORE
     ) {
-      setTimeout(() => {
-        setCalibrationMessage('Face the camera directly');
-      }, 0);
-      resetCalibration();
+      const minVisibility = Math.min(noseVisibility, leftShoulderVisibility, rightShoulderVisibility);
+      if (minVisibility < 0.5) {
+        setTimeout(() => {
+          setCalibrationMessage('Fix Lighting / Body not found');
+        }, 0);
+      } else {
+        setTimeout(() => {
+          setCalibrationMessage('Face the camera directly');
+        }, 0);
+      }
+      resetCalibration('position');
       return;
     }
 
@@ -132,7 +197,7 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
       setTimeout(() => {
         setCalibrationMessage('Step back to show full body');
       }, 0);
-      resetCalibration();
+      resetCalibration('position');
       return;
     }
 
@@ -147,7 +212,7 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
       setTimeout(() => {
         setCalibrationMessage('Step Closer');
       }, 0);
-      resetCalibration();
+      resetCalibration('position');
       return;
     }
 
@@ -156,27 +221,48 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
       setTimeout(() => {
         setCalibrationMessage('Step Back');
       }, 0);
-      resetCalibration();
+      resetCalibration('position');
       return;
     }
+    
+    // Check for significant movement that would reset calibration
+    // Only check if calibration has already started
+    if (startTimeRef.current !== null && previousLandmarksRef.current?.nose && landmarks.nose) {
+      const movement = calculatePixelDistance(
+        { x: landmarks.nose.x, y: landmarks.nose.y },
+        { x: previousLandmarksRef.current.nose.x, y: previousLandmarksRef.current.nose.y }
+      );
+      
+      // If there's significant movement during calibration, reset it
+      if (movement > MOVEMENT_THRESHOLD_PX) {
+        resetCalibration('movement');
+        return;
+      }
+      
+      // Small movement - just update landmarks and continue calibration
+      previousLandmarksRef.current = {
+        nose: { x: landmarks.nose.x, y: landmarks.nose.y },
+        leftAnkle: { x: landmarks.leftAnkle.x, y: landmarks.leftAnkle.y },
+        rightAnkle: { x: landmarks.rightAnkle.x, y: landmarks.rightAnkle.y },
+      };
+      return; // Don't restart timer if already running
+    }
+    
+    // Update previous landmarks for movement tracking
+    previousLandmarksRef.current = {
+      nose: { x: landmarks.nose.x, y: landmarks.nose.y },
+      leftAnkle: { x: landmarks.leftAnkle.x, y: landmarks.leftAnkle.y },
+      rightAnkle: { x: landmarks.rightAnkle.x, y: landmarks.rightAnkle.y },
+    };
 
-    // User is in good position - start calibration timer
-    setTimeout(() => {
+    // User is in good position - start calibration timer (only if not already started)
+    if (startTimeRef.current === null && progressIntervalRef.current === null) {
+      startTimeRef.current = Date.now();
+      setProgress(0);
       setCalibrationMessage('Hold still...');
       setShowProgress(true);
-    }, 0);
-
-    // If we haven't started a timer yet, start one
-    if (startTimeRef.current === null) {
-      startTimeRef.current = Date.now();
-      setTimeout(() => {
-        setProgress(0);
-      }, 0);
 
       // Start progress update interval
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
       progressIntervalRef.current = setInterval(() => {
         if (startTimeRef.current) {
           const elapsed = Date.now() - startTimeRef.current;
@@ -198,12 +284,21 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
             // Small delay before calling onCalibrated to show success message
             calibrationTimerRef.current = setTimeout(() => {
               onCalibrated();
-            }, 300); // Reduced from 500ms for faster transition
+            }, 300);
           }
         }
-      }, 30); // Update every 30ms for smoother progress (reduced from 50ms)
+      }, 30); // Update every 30ms for smoother progress
     }
   }, [landmarks, isLoading, error, isCalibrated, onCalibrated]);
+
+  // Handle skip calibration
+  const handleSkip = () => {
+    setIsCalibrated(true);
+    setCalibrationMessage('Skipping calibration...');
+    setTimeout(() => {
+      onCalibrated();
+    }, 300);
+  };
 
   // Cleanup on unmount
   useEffect(() => {
@@ -213,6 +308,9 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
       }
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
+      }
+      if (skipTimeoutRef.current) {
+        clearTimeout(skipTimeoutRef.current);
       }
     };
   }, []);
@@ -360,6 +458,21 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
                 >
                   ✓ Ready to play!
                 </motion.p>
+              )}
+              {showSkipButton && !isCalibrated && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="mt-4 md:mt-4"
+                >
+                  <button
+                    onClick={handleSkip}
+                    className="px-6 py-2 md:px-8 md:py-3 bg-white/20 hover:bg-white/30 text-white font-display font-semibold rounded-lg md:rounded-xl transition-all duration-200 backdrop-blur-sm border border-white/30 hover:border-white/50"
+                  >
+                    Skip Calibration
+                  </button>
+                </motion.div>
               )}
             </>
           )}
