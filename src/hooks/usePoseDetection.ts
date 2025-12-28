@@ -90,6 +90,17 @@ function calculateDistance(
 export function usePoseDetection(
   webcamRef: RefObject<Webcam | null>
 ): UsePoseDetectionReturn {
+  // Log hook initialization immediately - use multiple console methods to ensure visibility
+  console.log('[PoseDetection] ========== Hook initialized ==========');
+  console.warn('[PoseDetection] Hook initialized (warn)', {
+    hasWebcamRef: !!webcamRef,
+    webcamRefCurrent: !!webcamRef?.current,
+  });
+  console.log('[PoseDetection] Hook initialized (log)', {
+    hasWebcamRef: !!webcamRef,
+    webcamRefCurrent: !!webcamRef?.current,
+  });
+
   const [landmarks, setLandmarks] = useState<PoseLandmarks | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,18 +114,61 @@ export function usePoseDetection(
   const animationFrameRef = useRef<number | null>(null);
   const previousLandmarksRef = useRef<PoseLandmarks | null>(null);
   const detectionRunningRef = useRef(false);
+  // CRITICAL: Use useRef to persist initialization state across React Strict Mode remounts
+  // This prevents MediaPipe WASM from initializing twice and causing abort() crashes
+  const isLoadedRef = useRef(false);
+  const isInitializingRef = useRef(false);
+  // CRITICAL: Use useRef for isMounted so that onResults callbacks always check the current mount state
+  // This prevents "component unmounted" issues when React Strict Mode remounts
+  const isMountedRef = useRef(true);
+
+  console.log('[PoseDetection] About to define initialization useEffect...');
 
   // Initialize MediaPipe Pose model
   useEffect(() => {
-    let isMounted = true;
-    let hasInitialized = false;
+    // CRITICAL: Set mounted flag to true at the start of every effect run
+    // This ensures that onResults callbacks work even when we skip initialization (e.g., in Strict Mode remount)
+    isMountedRef.current = true;
+    
+    console.log('[PoseDetection] ========== Initialization effect triggered ==========');
+    console.log('[PoseDetection] Initialization effect triggered', {
+      isLoaded: isLoadedRef.current,
+      isInitializing: isInitializingRef.current,
+      hasPoseRef: !!poseRef.current,
+      isMounted: isMountedRef.current,
+    });
+
+    // CHECK THE LOCK: If already loaded/loading, STOP immediately.
+    // This prevents double-initialization in React Strict Mode.
+    // BUT: If isLoaded is true but poseRef is null, we need to re-initialize
+    if (isInitializingRef.current) {
+      console.log('[PoseDetection] ⚠ Initialization skipped - already initializing');
+      return;
+    }
+
+    if (isLoadedRef.current && poseRef.current) {
+      console.log('[PoseDetection] ✓ Already initialized and poseRef exists - skipping initialization');
+      // If already loaded and poseRef exists, make sure loading state is false
+      setIsLoading(false);
+      return;
+    }
+
+    // If isLoaded is true but poseRef is null, we need to reset and re-initialize
+    if (isLoadedRef.current && !poseRef.current) {
+      console.warn('[PoseDetection] ⚠⚠⚠ isLoaded is true but poseRef is null - resetting and re-initializing');
+      isLoadedRef.current = false;
+    }
+
+    console.log('[PoseDetection] Proceeding with initialization...');
+
+    // Lock it immediately to prevent concurrent initializations
+    isInitializingRef.current = true;
+    console.log('[PoseDetection] Starting MediaPipe initialization...');
 
     const initializePose = async () => {
-      // Prevent multiple initializations
-      if (hasInitialized) return;
-      hasInitialized = true;
-
+      console.log('[PoseDetection] initializePose async function called');
       try {
+        console.log('[PoseDetection] Setting loading state to true');
         setIsLoading(true);
         setError(null);
 
@@ -122,11 +176,14 @@ export function usePoseDetection(
         // Wrap in try-catch to handle Turbopack/WebAssembly loading errors
         let PoseClass;
         try {
+          console.log('[PoseDetection] Importing @mediapipe/pose module...');
           const poseModule = await import('@mediapipe/pose');
           PoseClass = poseModule.Pose;
+          console.log('[PoseDetection] ✓ MediaPipe module imported successfully');
         } catch (importError) {
-          console.error('Failed to import MediaPipe Pose:', importError);
-          if (isMounted) {
+          console.error('[PoseDetection] ✗ Failed to import MediaPipe Pose:', importError);
+          isInitializingRef.current = false; // Reset lock on error so retry is possible
+          if (isMountedRef.current) {
             setError('Failed to load pose detection. Please refresh the page.');
             setIsLoading(false);
           }
@@ -138,14 +195,17 @@ export function usePoseDetection(
         // Wrap Pose constructor in try-catch to handle WebAssembly/Turbopack errors
         let pose;
         try {
+          console.log('[PoseDetection] Creating Pose instance...');
           pose = new Pose({
             locateFile: (file) => {
               return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
             },
           });
+          console.log('[PoseDetection] ✓ Pose instance created successfully');
         } catch (constructorError) {
-          console.error('Failed to create Pose instance:', constructorError);
-          if (isMounted) {
+          console.error('[PoseDetection] ✗ Failed to create Pose instance:', constructorError);
+          isInitializingRef.current = false; // Reset lock on error so retry is possible
+          if (isMountedRef.current) {
             setError('Failed to initialize pose detection model. Please refresh the page.');
             setIsLoading(false);
           }
@@ -153,6 +213,7 @@ export function usePoseDetection(
         }
 
         try {
+          console.log('[PoseDetection] Setting Pose options...');
           pose.setOptions({
             modelComplexity: 1,
             smoothLandmarks: true,
@@ -161,9 +222,11 @@ export function usePoseDetection(
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5,
           });
+          console.log('[PoseDetection] ✓ Pose options configured');
         } catch (optionsError) {
-          console.error('Failed to set Pose options:', optionsError);
-          if (isMounted) {
+          console.error('[PoseDetection] ✗ Failed to set Pose options:', optionsError);
+          isInitializingRef.current = false; // Reset lock on error so retry is possible
+          if (isMountedRef.current) {
             setError('Failed to configure pose detection. Please refresh the page.');
             setIsLoading(false);
           }
@@ -171,8 +234,24 @@ export function usePoseDetection(
         }
 
         // Handle pose detection results
+        console.log('[PoseDetection] Setting up onResults callback...');
         pose.onResults((results) => {
-          if (!isMounted) return;
+          if (!isMountedRef.current) {
+            console.log('[PoseDetection] onResults called but component unmounted');
+            return;
+          }
+
+          const hasLandmarks = results.poseLandmarks && results.poseLandmarks.length > 0;
+          if (hasLandmarks) {
+            const landmarkCount = results.poseLandmarks?.length || 0;
+            console.log(`[PoseDetection] ✓ Pose detected! ${landmarkCount} landmarks`);
+          } else {
+            // Only log no pose every 30 frames to avoid spam (roughly once per second at 30fps)
+            const now = Date.now();
+            if (!previousLandmarksRef.current || (now % 1000 < 33)) {
+              console.log('[PoseDetection] ⚠ No pose landmarks detected in frame');
+            }
+          }
 
           if (results.poseLandmarks && results.poseLandmarks.length > 0) {
             const landmarks = results.poseLandmarks;
@@ -402,91 +481,172 @@ export function usePoseDetection(
         });
 
         poseRef.current = pose;
+        isLoadedRef.current = true; // Mark as successfully loaded
+        isInitializingRef.current = false;
         setIsLoading(false);
+        console.log('[PoseDetection] ✓ Initialization complete! Pose detection ready.');
       } catch (err) {
-        console.error('Failed to initialize MediaPipe Pose:', err);
-        if (isMounted) {
+        console.error('[PoseDetection] ✗ Failed to initialize MediaPipe Pose:', err);
+        isInitializingRef.current = false; // Reset lock on error so retry is possible
+        if (isMountedRef.current) {
           setError(err instanceof Error ? err.message : 'Failed to initialize pose detection');
           setIsLoading(false);
         }
       }
     };
 
-    initializePose();
+    console.log('[PoseDetection] Calling initializePose()...');
+    initializePose().catch((err) => {
+      console.error('[PoseDetection] Unhandled error in initializePose:', err);
+    });
 
     return () => {
-      isMounted = false;
-      hasInitialized = false;
+      console.log('[PoseDetection] Cleanup: Initialization effect cleanup running');
+      isMountedRef.current = false;
+      // IMPORTANT: Only cleanup if the component is TRULY unmounting (not just React Strict Mode remount).
+      // In React Strict Mode, this cleanup runs between Mount 1 and Mount 2.
+      // We DON'T reset isLoadedRef here because that would allow double-initialization.
+      // Only reset if we're certain this is a real unmount (which is hard to detect).
+      // For MediaPipe, it's safer to keep the lock and let the browser handle resource cleanup.
+      
+      // Cleanup animation frame
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
+      
+      // CAREFUL: Disposing MediaPipe too quickly in cleanup causes crashes.
+      // Only dispose if we're certain this is a final unmount, not a Strict Mode remount.
+      // For now, we let MediaPipe handle its own cleanup to avoid WASM crashes.
+      // If you need to dispose, uncomment the code below, but test thoroughly:
+      /*
       if (poseRef.current) {
         try {
           poseRef.current.close();
         } catch (err) {
-          // Ignore errors during cleanup
+          // Ignore errors during cleanup - MediaPipe may already be disposed
         }
         poseRef.current = null;
       }
+      */
     };
   }, []); // Empty dependency array - only run once on mount
 
+  console.log('[PoseDetection] About to define detection loop useEffect...');
+
   // Start/stop detection based on webcam availability
   useEffect(() => {
+    console.log('[PoseDetection] ========== Detection loop effect triggered ==========');
+    const hasPoseRef = !!poseRef.current;
+    const hasWebcamRef = !!webcamRef.current;
+    const hasVideo = !!webcamRef.current?.video;
+    const videoReadyState = webcamRef.current?.video?.readyState;
+    const videoWidth = webcamRef.current?.video?.videoWidth;
+    const videoHeight = webcamRef.current?.video?.videoHeight;
+    
+    console.log('[PoseDetection] Detection loop effect triggered', {
+      hasPoseRef,
+      isLoading,
+      isDetectionRunning: detectionRunningRef.current,
+      hasWebcamRef,
+      hasVideo,
+      videoReadyState,
+      videoWidth,
+      videoHeight,
+    });
+
     if (!poseRef.current || isLoading || detectionRunningRef.current) {
+      console.log('[PoseDetection] Detection loop skipped', {
+        reason: !poseRef.current ? 'no poseRef' : isLoading ? 'still loading' : 'already running',
+      });
       return;
     }
 
     const video = webcamRef.current?.video;
     if (!video) {
+      console.log('[PoseDetection] Detection loop skipped - no video element');
       return;
     }
+
+    console.log('[PoseDetection] Starting detection loop...', {
+      videoReadyState: video.readyState,
+      videoWidth: video.videoWidth,
+      videoHeight: video.videoHeight,
+    });
 
     let isRunning = true;
     detectionRunningRef.current = true;
 
     // Wait for video to be ready
     const handleLoadedMetadata = () => {
-      if (!isRunning || !poseRef.current || !video) return;
+      console.log('[PoseDetection] Video metadata loaded', {
+        readyState: video?.readyState,
+        videoWidth: video?.videoWidth,
+        videoHeight: video?.videoHeight,
+      });
 
+      if (!isRunning || !poseRef.current || !video) {
+        console.log('[PoseDetection] handleLoadedMetadata: conditions not met, returning');
+        return;
+      }
+
+      let frameCount = 0;
       // Start pose detection loop
       const detectPose = async () => {
         if (!isRunning || !poseRef.current || !video) {
+          console.log('[PoseDetection] Detection loop stopped');
           detectionRunningRef.current = false;
           return;
+        }
+
+        frameCount++;
+        // Log every 60 frames (roughly once per second at 60fps)
+        if (frameCount % 60 === 0) {
+          console.log(`[PoseDetection] Detection loop running... frame ${frameCount}`, {
+            videoReadyState: video.readyState,
+            hasPoseRef: !!poseRef.current,
+          });
         }
 
         try {
           if (video.readyState >= 2) {
             await poseRef.current.send({ image: video });
+          } else {
+            if (frameCount % 60 === 0) {
+              console.log(`[PoseDetection] Video not ready (readyState: ${video.readyState}), skipping frame`);
+            }
           }
         } catch (err) {
-          // Silently handle errors - may happen during cleanup or if video is not ready
-          if (isRunning) {
-            console.error('Pose detection error:', err);
+          // Log errors but don't spam
+          if (isRunning && frameCount % 60 === 0) {
+            console.error('[PoseDetection] Error sending frame to pose detector:', err);
           }
         }
 
         if (isRunning && poseRef.current && video) {
           animationFrameRef.current = requestAnimationFrame(detectPose);
         } else {
+          console.log('[PoseDetection] Stopping detection loop');
           detectionRunningRef.current = false;
         }
       };
 
       if (isRunning) {
+        console.log('[PoseDetection] Starting detectPose loop...');
         detectPose();
       }
     };
 
     if (video.readyState >= 2) {
+      console.log('[PoseDetection] Video already ready, calling handleLoadedMetadata immediately');
       handleLoadedMetadata();
     } else {
+      console.log('[PoseDetection] Waiting for video loadedmetadata event...');
       video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
     }
 
     return () => {
+      console.log('[PoseDetection] Cleaning up detection loop');
       isRunning = false;
       detectionRunningRef.current = false;
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
@@ -496,6 +656,37 @@ export function usePoseDetection(
       }
     };
   }, [isLoading]); // Only depend on isLoading, webcamRef is stable
+
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log('[PoseDetection] State update', {
+      isLoading,
+      error,
+      isDetecting,
+      hasLandmarks: !!landmarks,
+      landmarkCount: landmarks ? Object.keys(landmarks).length : 0,
+    });
+  }, [isLoading, error, isDetecting, landmarks]);
+
+  // Monitor webcam availability periodically (using interval instead of dependency)
+  useEffect(() => {
+    const checkInterval = setInterval(() => {
+      const webcam = webcamRef.current;
+      const video = webcam?.video;
+      if (video && video.readyState !== undefined) {
+        console.log('[PoseDetection] Webcam status check', {
+          hasVideo: !!video,
+          videoReadyState: video.readyState,
+          videoWidth: video.videoWidth,
+          videoHeight: video.videoHeight,
+          isLoading,
+          hasPoseRef: !!poseRef.current,
+        });
+      }
+    }, 2000); // Check every 2 seconds
+
+    return () => clearInterval(checkInterval);
+  }, [isLoading]);
 
   return {
     landmarks,

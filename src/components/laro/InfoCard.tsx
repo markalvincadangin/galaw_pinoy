@@ -1,4 +1,7 @@
+'use client';
+
 import { ReactNode, ComponentType } from 'react';
+import { motion } from 'framer-motion';
 
 type InfoCardProps = {
   icon: ComponentType<{ className?: string }>; // React component that accepts className
@@ -6,8 +9,6 @@ type InfoCardProps = {
   color: string;
   children: ReactNode;
 };
-
-import { motion } from 'framer-motion';
 
 function InfoCard({ icon: Icon, title, color, children }: InfoCardProps) {
     return (
