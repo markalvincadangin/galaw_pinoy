@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
-import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon } from 'lucide-react';
+import { Flag, History, Users, PlayCircle, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import InfoCard from '@/components/laro/InfoCard';
 
 export default function LuksongBaka() {
@@ -12,8 +13,18 @@ export default function LuksongBaka() {
     <>
       <Navigation />
       <main className="min-h-screen pb-20 md:pb-0 px-6 md:px-8">
+        <div className="pt-28 px-4 max-w-7xl mx-auto">
+          <Link 
+            href="/laro" 
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white hover:translate-x-[-4px] transition-all duration-300 font-display uppercase tracking-wide text-sm"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back
+          </Link>
+        </div>
+
         {/* Hero Section */}
-        <section className="min-h-[70vh] flex flex-col justify-center items-center text-center py-20 md:py-32">
+        <section className="min-h-[60vh] flex flex-col justify-center items-center text-center py-10 md:py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -29,7 +40,7 @@ export default function LuksongBaka() {
             </h1>
 
             <p className="text-lg md:text-xl lg:text-2xl text-white/95 leading-relaxed font-body drop-shadow-md max-w-3xl mx-auto">
-              Luksong baka translates to "Jump over the Cow." Players jump over a bent-over "cow" player, testing agility and balance.
+              Luksong baka translates to &quot;Jump over the Cow.&quot; Players jump over a bent-over &quot;cow&quot; player, testing agility and balance.
             </p>
           </motion.div>
         </section>
@@ -38,7 +49,7 @@ export default function LuksongBaka() {
         <section className="py-16 md:py-20 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <InfoCard icon={Flag} title="Short Description" color="from-brand-red to-red-700">
             <em>
-              A traditional Filipino children's game where players leap over a crouched "baka" without touching them.
+              A traditional Filipino children&apos;s game where players leap over a crouched &quot;baka&quot; without touching them.
             </em>
           </InfoCard>
 
@@ -48,8 +59,8 @@ export default function LuksongBaka() {
 
           <InfoCard icon={Users} title="Rules" color="from-brand-blue to-blue-700">
             <ul className="list-disc list-inside space-y-2">
-              <li>One player starts as the "baka" (cow), bending over with hands on knees.</li>
-              <li>Jumpers must leap over without full-body contact or falling; only hands may lightly touch the baka's back for balance.</li>
+              <li>One player starts as the &quot;baka&quot; (cow), bending over with hands on knees.</li>
+              <li>Jumpers must leap over without full-body contact or falling; only hands may lightly touch the baka&apos;s back for balance.</li>
               <li>A failed jump means the jumper becomes the new baka.</li>
             </ul>
           </InfoCard>

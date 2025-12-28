@@ -252,7 +252,7 @@ export default function Navigation() {
           
           <ul className="flex items-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 xl:gap-5 list-none m-0 p-0 flex-nowrap relative z-10 overflow-x-auto scrollbar-hide">
             {desktopNavItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
               return (
                 <li key={item.href} className="m-0 p-0">
                   <motion.div
@@ -508,7 +508,7 @@ export default function Navigation() {
                   {/* Primary Navigation Items */}
                   <ul className="flex items-center justify-around list-none m-0 p-2">
                     {mobilePrimaryNavItems.map((item) => {
-                      const isActive = pathname === item.href;
+                      const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                       const Icon = item.icon;
                       return (
                         <li key={item.href} className="m-0 p-0 flex-1">
@@ -694,7 +694,7 @@ export default function Navigation() {
                   >
                     <div className="p-4 grid grid-cols-2 gap-3">
                       {mobileSecondaryNavItems.map((item) => {
-                        const isActive = pathname === item.href;
+                        const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
                         const Icon = item.icon;
                         return (
                           <Link
