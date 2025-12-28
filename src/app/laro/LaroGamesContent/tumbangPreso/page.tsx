@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
-import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon } from 'lucide-react';
+import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import InfoCard from '@/components/laro/InfoCard';
 
 export default function TumbangPreso() {
@@ -13,8 +14,18 @@ export default function TumbangPreso() {
       <Navigation />
 
       <main className="min-h-screen pb-20 md:pb-0 px-6 md:px-8">
+        <div className="pt-28 px-4 max-w-7xl mx-auto">
+          <Link 
+            href="/laro" 
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white hover:translate-x-[-4px] transition-all duration-300 font-display uppercase tracking-wide text-sm"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back
+          </Link>
+        </div>
+
         {/* Hero Section */}
-        <section className="min-h-[70vh] flex flex-col justify-center items-center text-center py-20 md:py-32">
+        <section className="min-h-[60vh] flex flex-col justify-center items-center text-center py-10 md:py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -29,7 +40,7 @@ export default function TumbangPreso() {
             </h1>
 
             <p className="text-lg md:text-xl lg:text-2xl text-white/95 leading-relaxed font-body drop-shadow-md max-w-3xl mx-auto">
-              Tumbang preso, which translates to "knock down the prisoner," is a traditional Filipino children's game enjoyed in groups and in the streets.
+              Tumbang preso, which translates to &quot;knock down the prisoner,&quot; is a traditional Filipino children&apos;s game enjoyed in groups and in the streets.
             </p>
           </motion.div>
         </section>
@@ -49,7 +60,7 @@ export default function TumbangPreso() {
           <InfoCard icon={Users} title="Rules" color="from-brand-blue to-blue-700">
             <ul className="list-disc list-inside space-y-2">
               <li>Players must have slippers. The slippers serve as throwing objects to hit the can precisely.</li>
-              <li>The It and the hitter must never cross into each other's zones unless under specific conditions.</li>
+              <li>The It and the hitter must never cross into each other&apos;s zones unless under specific conditions.</li>
               <li>Every hitter must throw their slipper; otherwise, they become It in the next round.</li>
               <li>If all players miss the can and none are in the player zone with slippers, It ticks the can three times.</li>
               <li>It will never tag a player if the can is knocked out.</li>

@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
-import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon } from 'lucide-react';
+import { Flag, History, Users, PlayCircle, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import InfoCard from '@/components/laro/InfoCard';
 
 export default function LuksongTinik() {
@@ -12,8 +13,18 @@ export default function LuksongTinik() {
     <>
       <Navigation />
       <main className="min-h-screen pb-20 md:pb-0 px-6 md:px-8">
+        <div className="pt-28 px-4 max-w-7xl mx-auto">
+          <Link 
+            href="/laro" 
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white hover:translate-x-[-4px] transition-all duration-300 font-display uppercase tracking-wide text-sm"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back
+          </Link>
+        </div>
+
         {/* Hero Section */}
-        <section className="min-h-[70vh] flex flex-col justify-center items-center text-center py-20 md:py-32">
+        <section className="min-h-[60vh] flex flex-col justify-center items-center text-center py-10 md:py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -29,7 +40,7 @@ export default function LuksongTinik() {
             </h1>
 
             <p className="text-lg md:text-xl lg:text-2xl text-white/95 leading-relaxed font-body drop-shadow-md max-w-3xl mx-auto">
-              Luksong Tinik means "jumping over thorns." Players leap over a rising stack of hands and feet formed by two "thorns" without touching them.
+              Luksong Tinik means &quot;jumping over thorns.&quot; Players leap over a rising stack of hands and feet formed by two &quot;thorns&quot; without touching them.
             </p>
           </motion.div>
         </section>
@@ -38,18 +49,18 @@ export default function LuksongTinik() {
         <section className="py-16 md:py-20 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <InfoCard icon={Flag} title="Short Description" color="from-brand-red to-red-700">
             <em>
-              A traditional Filipino folk game where players jump over a stacked arrangement of hands and feet called "thorns," testing agility and coordination.
+              A traditional Filipino folk game where players jump over a stacked arrangement of hands and feet called &quot;thorns,&quot; testing agility and coordination.
             </em>
           </InfoCard>
 
           <InfoCard icon={History} title="History" color="from-brand-yellow to-yellow-600">
-            Originating in Cabanatuan, Nueva Ecija, Luksong Tinik is part of the "Palaro ng Lahi" games, promoting physical skill and outdoor play among children.
+            Originating in Cabanatuan, Nueva Ecija, Luksong Tinik is part of the &quot;Palaro ng Lahi&quot; games, promoting physical skill and outdoor play among children.
           </InfoCard>
 
           <InfoCard icon={Users} title="Rules" color="from-brand-blue to-blue-700">
             <ul className="list-disc list-inside space-y-2">
-              <li>Two teams select a "nanay" (mother) leader who jumps highest; remaining players are "anak" (children).</li>
-              <li>Two "thorns" sit facing each other, stacking feet and hands to form levels.</li>
+              <li>Two teams select a &quot;nanay&quot; (mother) leader who jumps highest; remaining players are &quot;anak&quot; (children).</li>
+              <li>Two &quot;thorns&quot; sit facing each other, stacking feet and hands to form levels.</li>
               <li>Jumpers must clear the stack without touching it or full-body contact.</li>
               <li>Failed jumps allow extra tries; thorns rotate after rounds.</li>
             </ul>

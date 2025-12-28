@@ -258,9 +258,12 @@ export default function CalibrationCheck({ onCalibrated }: CalibrationCheckProps
     // User is in good position - start calibration timer (only if not already started)
     if (startTimeRef.current === null && progressIntervalRef.current === null) {
       startTimeRef.current = Date.now();
-      setProgress(0);
-      setCalibrationMessage('Hold still...');
-      setShowProgress(true);
+      // Instead of setting state here, we rely on the interval to update progress
+      // Use setTimeout to avoid synchronous state updates during effect execution
+      setTimeout(() => {
+        setCalibrationMessage('Hold still...');
+        setShowProgress(true);
+      }, 0);
 
       // Start progress update interval
       progressIntervalRef.current = setInterval(() => {
