@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
-import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon } from 'lucide-react';
+import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import InfoCard from '@/components/laro/InfoCard';
 
 export default function Patintero() {
@@ -12,8 +13,18 @@ export default function Patintero() {
     <>
       <Navigation />
       <main className="min-h-screen pb-20 md:pb-0 px-6 md:px-8">
+        <div className="pt-28 px-4 max-w-7xl mx-auto">
+          <Link 
+            href="/laro" 
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white hover:translate-x-[-4px] transition-all duration-300 font-display uppercase tracking-wide text-sm"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back
+          </Link>
+        </div>
+
         {/* Hero Section */}
-        <section className="min-h-[70vh] flex flex-col justify-center items-center text-center py-20 md:py-32">
+        <section className="min-h-[60vh] flex flex-col justify-center items-center text-center py-10 md:py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -55,9 +66,9 @@ export default function Patintero() {
           <InfoCard icon={Activity} title="Step-by-Step Gameplay" color="from-brand-red to-red-700">
             <ul className="list-disc list-inside space-y-2">
               <li>Draw a rectangular grid (usually 3x2 squares).</li>
-              <li>The "It" team guards the lines; the "Runners" stand at the entrance.</li>
+              <li>The &quot;It&quot; team guards the lines; the &quot;Runners&quot; stand at the entrance.</li>
               <li>Runners try to dodge through the squares.</li>
-              <li>If a runner is tagged by a guard with both feet on the line, that player is "out".</li>
+              <li>If a runner is tagged by a guard with both feet on the line, that player is &quot;out&quot;.</li>
             </ul>
           </InfoCard>
         </section>

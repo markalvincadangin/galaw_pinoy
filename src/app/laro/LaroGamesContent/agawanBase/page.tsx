@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
-import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon } from 'lucide-react';
+import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon, ChevronLeft } from 'lucide-react';
 import InfoCard from '@/components/laro/InfoCard';
 
 export default function AgawanBase() {
@@ -10,8 +11,18 @@ export default function AgawanBase() {
     <>
       <Navigation />
       <main className="min-h-screen pb-20 md:pb-0">
+        <div className="pt-28 px-6 md:px-8 max-w-7xl mx-auto">
+          <Link 
+            href="/laro" 
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white hover:translate-x-[-4px] transition-all duration-300 font-display uppercase tracking-wide text-sm"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back
+          </Link>
+        </div>
+
         {/* Hero Section */}
-        <section className="min-h-[70vh] flex flex-col justify-center items-center text-center px-6 md:px-8 py-20 md:py-32">
+        <section className="min-h-[60vh] flex flex-col justify-center items-center text-center px-6 md:px-8 py-10 md:py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
