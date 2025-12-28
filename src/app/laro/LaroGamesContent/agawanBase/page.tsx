@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import { Flag, History, Users, Activity, PlayCircle, Image as ImageIcon } from 'lucide-react';
-import InfoCard from '../InfoCard/page';
+import InfoCard from '@/components/laro/InfoCard';
 
 export default function AgawanBase() {
   return (
