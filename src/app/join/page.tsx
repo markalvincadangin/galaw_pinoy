@@ -70,9 +70,9 @@ function ReflectionForm({ initialState }: { initialState: ActionResult | null })
           className="w-full px-4 py-3 text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-white placeholder:text-white/50 font-body"
         />
         <input
-          name="section"
+          name="course"
           type="text"
-          placeholder="Section"
+          placeholder="Course"
           required
           maxLength={100}
           className="w-full px-4 py-3 text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-white placeholder:text-white/50 font-body"
