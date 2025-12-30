@@ -17,7 +17,7 @@ export default async function AdminDashboard() {
     name: reflection.name,
     school: reflection.school,
     year: reflection.year,
-    section: reflection.section,
+    course: reflection.course,
     content: reflection.content,
     createdAt: reflection.createdAt 
       ? (reflection.createdAt instanceof Date 
