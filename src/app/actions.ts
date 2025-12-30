@@ -19,7 +19,7 @@ export async function submitReflection(formData: FormData): Promise<ActionResult
     const name = formData.get('name')?.toString().trim() || '';
     const school = formData.get('school')?.toString().trim() || '';
     const year = formData.get('year')?.toString().trim() || '';
-    const section = formData.get('section')?.toString().trim() || '';
+    const course = formData.get('section')?.toString().trim() || '';
     const content = formData.get('content')?.toString().trim() || '';
 
     // Basic server-side validation
@@ -32,7 +32,7 @@ export async function submitReflection(formData: FormData): Promise<ActionResult
     if (!year) {
       return { success: false, message: 'Please provide your year.' };
     }
-    if (!section) {
+    if (!course) {
       return { success: false, message: 'Please provide your section.' };
     }
     if (!content) {
@@ -43,7 +43,7 @@ export async function submitReflection(formData: FormData): Promise<ActionResult
     const MAX_NAME = 100;
     const MAX_SCHOOL = 150;
     const MAX_YEAR = 50;
-    const MAX_SECTION = 100;
+    const MAX_COURSE = 100;
     const MAX_CONTENT = 5000;
 
     if (name.length > MAX_NAME) {
@@ -55,8 +55,8 @@ export async function submitReflection(formData: FormData): Promise<ActionResult
     if (year.length > MAX_YEAR) {
       return { success: false, message: `Year must be ${MAX_YEAR} characters or fewer.` };
     }
-    if (section.length > MAX_SECTION) {
-      return { success: false, message: `Section must be ${MAX_SECTION} characters or fewer.` };
+    if (course.length > MAX_COURSE) {
+      return { success: false, message: `Course must be ${MAX_COURSE} characters or fewer.` };
     }
     if (content.length > MAX_CONTENT) {
       return { success: false, message: `Reflection is too long.` };
@@ -67,7 +67,7 @@ export async function submitReflection(formData: FormData): Promise<ActionResult
       name,
       school,
       year,
-      section,
+      course,
       content,
     });
 

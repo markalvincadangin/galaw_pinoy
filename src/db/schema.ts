@@ -10,7 +10,7 @@ export const reflections = pgTable('reflections', {
     name: text('name').notNull(),                 // Student's name
     school: text('school').notNull(),             // School name
     year: text('year').notNull(),                 // Year level
-    section: text('section').notNull(),           // Section/class
+    course: text('course').notNull(),           // Course
     content: text('content').notNull(),           // Reflection content
     createdAt: timestamp('created_at').defaultNow(), // Timestamp
 });
