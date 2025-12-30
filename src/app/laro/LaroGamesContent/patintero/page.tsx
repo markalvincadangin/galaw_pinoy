@@ -40,7 +40,7 @@ export default function Patintero() {
             </h1>
 
             <p className="text-lg md:text-xl lg:text-2xl text-white/95 leading-relaxed font-body drop-shadow-md max-w-3xl mx-auto">
-              The most popular Filipino street game, involving two teams: one trying to cross a grid and the other trying to block them.
+              Patintero is also called “Taguan sa Linya” in some regions. It was a popular street game where children would create elaborate strategies to avoid the “it” players, developing teamwork and clever tactics.
             </p>
           </motion.div>
         </section>
