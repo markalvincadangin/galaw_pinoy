@@ -19,7 +19,7 @@ export async function submitReflection(formData: FormData): Promise<ActionResult
     const name = formData.get('name')?.toString().trim() || '';
     const school = formData.get('school')?.toString().trim() || '';
     const year = formData.get('year')?.toString().trim() || '';
-    const course = formData.get('section')?.toString().trim() || '';
+    const course = formData.get('course')?.toString().trim() || '';
     const content = formData.get('content')?.toString().trim() || '';
 
     // Basic server-side validation
@@ -33,7 +33,7 @@ export async function submitReflection(formData: FormData): Promise<ActionResult
       return { success: false, message: 'Please provide your year.' };
     }
     if (!course) {
-      return { success: false, message: 'Please provide your section.' };
+      return { success: false, message: 'Please provide your course.' };
     }
     if (!content) {
       return { success: false, message: 'Please write a reflection.' };

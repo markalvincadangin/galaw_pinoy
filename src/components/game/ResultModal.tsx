@@ -57,6 +57,11 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
         if (!blob) {
           console.error('Failed to create blob');
           setIsSharing(false);
+          setToast({
+            id: Date.now().toString(),
+            message: 'Failed to create image. Try again.',
+            type: 'error'
+          });
           return;
         }
 
@@ -251,7 +256,6 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
                     )}
                   </button>
                 </div>
-                <p className="text-xs text-white/60 mt-1 font-body">Press Enter to submit</p>
               </form>
             </div>
 
