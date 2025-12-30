@@ -12,6 +12,7 @@ import ResultModal from '@/components/game/ResultModal';
 import TutorialModal from '@/components/game/TutorialModal';
 import GameMechanicsModal from '@/components/game/GameMechanicsModal';
 import GameHUD from '@/components/game/GameHUD';
+import { useRouter } from 'next/navigation';
 
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'over';
 
@@ -25,10 +26,11 @@ interface GridCell {
 
 const GRID_COLS = 3;
 const GRID_ROWS = 5;
-const ONE_LEG_THRESHOLD = 0.03; // Ankle Y difference threshold (normalized) - reduced from 0.05 for better sensitivity
+const ONE_LEG_THRESHOLD = 0.06; // Ankle Y difference threshold (normalized) - reduced from 0.05 for better sensitivity
 const BALANCE_GRACE_PERIOD = 500; // 0.5 seconds grace period for balance (milliseconds)
 
 export default function Piko(): React.ReactElement {
+  const router = useRouter();
   const webcamRef = useRef<Webcam>(null);
   const { landmarks, isLoading, error, isDetecting } = usePoseDetection(webcamRef);
   const { playScore, playGameOver, toggleMusic, isMusicPlaying } = useGameSound();
@@ -109,8 +111,8 @@ export default function Piko(): React.ReactElement {
     balanceGracePeriodStartRef.current = null;
     wasOneLegModeRef.current = false;
     physicsAnalyzerRef.current.reset();
-    // Stop background music when game resets
-    if (isMusicPlaying) {
+    // Start background music when game starts
+    if (!isMusicPlaying) {
       toggleMusic();
     }
   }, [isMusicPlaying, toggleMusic]);
@@ -118,7 +120,11 @@ export default function Piko(): React.ReactElement {
   // Handle calibration complete
   const handleCalibrated = useCallback(() => {
     setGameState('ready');
-  }, []);
+    // Auto-start countdown after 1.5 seconds
+    setTimeout(() => {
+        startCountdown();
+    }, 1500);
+  }, [gameState]);
 
   // End game (declared first since it's used by other callbacks)
   const endGame = useCallback(() => {
@@ -155,10 +161,7 @@ export default function Piko(): React.ReactElement {
     }
     
     setGameState('playing');
-    // Start background music
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
+
     // Establish baseline
     if (landmarks) {
       physicsAnalyzerRef.current.establishBaseline(landmarks);
@@ -167,17 +170,8 @@ export default function Piko(): React.ReactElement {
 
   // Start countdown
   const startCountdown = useCallback(() => {
-    // Block gameplay if tutorial is open
-    if (showTutorial) {
-      return;
-    }
-    
     setGameState('countdown');
-    // Start background music during countdown
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
-    
+
     // Countdown from 3
     let count = 3;
     const countdownInterval = setInterval(() => {
@@ -188,7 +182,7 @@ export default function Piko(): React.ReactElement {
         count--;
       }
     }, 1000);
-  }, [isMusicPlaying, toggleMusic, showTutorial, beginPlaying]);
+  }, [beginPlaying]);
 
   // Check one-leg balance with grace period
   useEffect(() => {
@@ -275,7 +269,7 @@ export default function Piko(): React.ReactElement {
       const hipVelocity = (avgHipY - previousHipYRef.current) * 1000; // Normalize
       
       // Hop detected: negative velocity (moving up) while in one-leg mode
-      if (hipVelocity < -0.01 && !hopDetectedRef.current) {
+      if (hipVelocity < -0.06 && !hopDetectedRef.current) {
         hopDetectedRef.current = true;
         
         // Complete current target
@@ -320,7 +314,7 @@ export default function Piko(): React.ReactElement {
     if (isLoading) return 'Loading pose detection...';
     if (error) return `Error: ${error}`;
     if (gameState === 'idle') return 'Step back until your full body is visible.';
-    if (gameState === 'ready') return 'Ready! Press START';
+    if (gameState === 'ready') return 'Ready!';
     if (gameState === 'countdown') return 'Get ready...';
     if (gameState === 'playing') {
       if (!isOneLegMode) return 'Lift one foot to start!';
@@ -360,7 +354,7 @@ export default function Piko(): React.ReactElement {
             left: 0,
             right: 0,
             bottom: 0,
-            zIndex: 1000,
+            zIndex: showResultModal ? 50 : 1000,
           }}
           animate={{
             x: screenShake ? [0, -shakeIntensity, shakeIntensity, -shakeIntensity, shakeIntensity, 0] : 0,
@@ -465,16 +459,7 @@ export default function Piko(): React.ReactElement {
             }}
             showPoseWarning={!isDetecting && gameState === 'playing' && !showResultModal}
           />
-
-          {/* Action Button */}
-          {gameState === 'ready' && (
-            <button
-              onClick={startCountdown}
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-colors"
-            >
-              START
-            </button>
-          )}
+      
         </motion.section>
       )}
 
@@ -486,7 +471,9 @@ export default function Piko(): React.ReactElement {
           gameType="piko"
           onClose={() => {
             setShowResultModal(false);
-            setGameState('idle');
+            setShowTutorial(false);
+            setShowMechanics(false);
+            router.push('/play');
           }}
         />
       )}

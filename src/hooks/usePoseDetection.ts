@@ -538,23 +538,8 @@ export function usePoseDetection(
   useEffect(() => {
     console.log('[PoseDetection] ========== Detection loop effect triggered ==========');
     const hasPoseRef = !!poseRef.current;
-    const hasWebcamRef = !!webcamRef.current;
-    const hasVideo = !!webcamRef.current?.video;
-    const videoReadyState = webcamRef.current?.video?.readyState;
-    const videoWidth = webcamRef.current?.video?.videoWidth;
-    const videoHeight = webcamRef.current?.video?.videoHeight;
     
-    console.log('[PoseDetection] Detection loop effect triggered', {
-      hasPoseRef,
-      isLoading,
-      isDetectionRunning: detectionRunningRef.current,
-      hasWebcamRef,
-      hasVideo,
-      videoReadyState,
-      videoWidth,
-      videoHeight,
-    });
-
+    // Check if we should even try to start
     if (!poseRef.current || isLoading || detectionRunningRef.current) {
       console.log('[PoseDetection] Detection loop skipped', {
         reason: !poseRef.current ? 'no poseRef' : isLoading ? 'still loading' : 'already running',
@@ -562,94 +547,107 @@ export function usePoseDetection(
       return;
     }
 
-    const video = webcamRef.current?.video;
-    if (!video) {
-      console.log('[PoseDetection] Detection loop skipped - no video element');
-      return;
-    }
-
-    console.log('[PoseDetection] Starting detection loop...', {
-      videoReadyState: video.readyState,
-      videoWidth: video.videoWidth,
-      videoHeight: video.videoHeight,
-    });
-
     let isRunning = true;
-    detectionRunningRef.current = true;
+    let retryTimeout: NodeJS.Timeout | null = null;
 
-    // Wait for video to be ready
-    const handleLoadedMetadata = () => {
-      console.log('[PoseDetection] Video metadata loaded', {
-        readyState: video?.readyState,
-        videoWidth: video?.videoWidth,
-        videoHeight: video?.videoHeight,
-      });
+    const startDetectionLoop = () => {
+      if (!isRunning) return;
 
-      if (!isRunning || !poseRef.current || !video) {
-        console.log('[PoseDetection] handleLoadedMetadata: conditions not met, returning');
+      const video = webcamRef.current?.video;
+      
+      // FIX: If video not found, retry in 500ms instead of giving up
+      if (!video) {
+        console.log('[PoseDetection] Video element not found yet, retrying in 500ms...');
+        retryTimeout = setTimeout(startDetectionLoop, 500);
         return;
       }
 
-      let frameCount = 0;
-      // Start pose detection loop
-      const detectPose = async () => {
+      console.log('[PoseDetection] Starting detection loop...', {
+        videoReadyState: video.readyState,
+        videoWidth: video.videoWidth,
+        videoHeight: video.videoHeight,
+      });
+
+      detectionRunningRef.current = true;
+
+      // Wait for video to be ready
+      const handleLoadedMetadata = () => {
         if (!isRunning || !poseRef.current || !video) {
-          console.log('[PoseDetection] Detection loop stopped');
-          detectionRunningRef.current = false;
+          console.log('[PoseDetection] handleLoadedMetadata: conditions not met, returning');
           return;
         }
 
-        frameCount++;
-        // Log every 60 frames (roughly once per second at 60fps)
-        if (frameCount % 60 === 0) {
-          console.log(`[PoseDetection] Detection loop running... frame ${frameCount}`, {
-            videoReadyState: video.readyState,
-            hasPoseRef: !!poseRef.current,
-          });
-        }
+        console.log('[PoseDetection] Video metadata loaded');
+        let frameCount = 0;
 
-        try {
-          if (video.readyState >= 2) {
-            await poseRef.current.send({ image: video });
-          } else {
-            if (frameCount % 60 === 0) {
-              console.log(`[PoseDetection] Video not ready (readyState: ${video.readyState}), skipping frame`);
+        // Start pose detection loop
+        const detectPose = async () => {
+          if (!isRunning || !poseRef.current || !video) {
+            console.log('[PoseDetection] Detection loop stopped');
+            detectionRunningRef.current = false;
+            return;
+          }
+
+          frameCount++;
+          // Log occasionally
+          if (frameCount % 60 === 0) {
+            console.log(`[PoseDetection] Detection loop running... frame ${frameCount}`, {
+              videoReadyState: video.readyState,
+              hasPoseRef: !!poseRef.current,
+            });
+          }
+
+          try {
+            if (video.readyState >= 2) {
+              await poseRef.current.send({ image: video });
+            } else {
+              if (frameCount % 60 === 0) {
+                console.log(`[PoseDetection] Video not ready (readyState: ${video.readyState}), skipping frame`);
+              }
+            }
+          } catch (err) {
+            // Log errors but don't spam
+            if (isRunning && frameCount % 60 === 0) {
+              console.error('[PoseDetection] Error sending frame to pose detector:', err);
             }
           }
-        } catch (err) {
-          // Log errors but don't spam
-          if (isRunning && frameCount % 60 === 0) {
-            console.error('[PoseDetection] Error sending frame to pose detector:', err);
-          }
-        }
 
-        if (isRunning && poseRef.current && video) {
-          animationFrameRef.current = requestAnimationFrame(detectPose);
-        } else {
-          console.log('[PoseDetection] Stopping detection loop');
-          detectionRunningRef.current = false;
+          if (isRunning && poseRef.current && video) {
+            animationFrameRef.current = requestAnimationFrame(detectPose);
+          } else {
+            console.log('[PoseDetection] Stopping detection loop');
+            detectionRunningRef.current = false;
+          }
+        };
+
+        if (isRunning) {
+          console.log('[PoseDetection] Starting detectPose loop...');
+          detectPose();
         }
       };
 
-      if (isRunning) {
-        console.log('[PoseDetection] Starting detectPose loop...');
-        detectPose();
+      if (video.readyState >= 2) {
+        console.log('[PoseDetection] Video already ready, calling handleLoadedMetadata immediately');
+        handleLoadedMetadata();
+      } else {
+        console.log('[PoseDetection] Waiting for video loadedmetadata event...');
+        video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
       }
     };
 
-    if (video.readyState >= 2) {
-      console.log('[PoseDetection] Video already ready, calling handleLoadedMetadata immediately');
-      handleLoadedMetadata();
-    } else {
-      console.log('[PoseDetection] Waiting for video loadedmetadata event...');
-      video.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
-    }
+    // Start the process
+    startDetectionLoop();
 
     return () => {
       console.log('[PoseDetection] Cleaning up detection loop');
       isRunning = false;
       detectionRunningRef.current = false;
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      if (retryTimeout) clearTimeout(retryTimeout);
+      
+      const video = webcamRef.current?.video;
+      // Note: We can't easily remove the specific event listener instance here because it was defined inside the closure,
+      // but since we check `isRunning` inside handleLoadedMetadata, it's safe.
+      
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
