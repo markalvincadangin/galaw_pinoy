@@ -212,9 +212,9 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
                       className="w-full px-3 py-2 bg-white/8 border border-white/10 rounded-lg text-white placeholder:text-white/50 font-body"
                     />
                     <input
-                      name="section"
+                      name="course"
                       type="text"
-                      placeholder="Section"
+                      placeholder="Course"
                       required
                       maxLength={100}
                       className="w-full px-3 py-2 bg-white/8 border border-white/10 rounded-lg text-white placeholder:text-white/50 font-body"
