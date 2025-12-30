@@ -36,7 +36,7 @@ export async function GET() {
     // Test 2: Insert a dummy reflection (write operation)
     const insertStartTime = Date.now();
     const dummyReflection = {
-      section: 'test-section',
+      course: 'test-course',
       content: `Test reflection - ${new Date().toISOString()}`,
       name: 'Test User',
       school: 'Test School',

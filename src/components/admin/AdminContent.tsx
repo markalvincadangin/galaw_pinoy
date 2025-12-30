@@ -8,7 +8,7 @@ interface Reflection {
   name: string;
   school: string;
   year: string;
-  section: string;
+  course: string;
   content: string;
   createdAt: string | null; // ISO string from server
 }
@@ -108,7 +108,7 @@ export default function AdminContent({ reflectionsData }: AdminContentProps) {
                         {reflection.year}
                       </td>
                       <td className="px-6 py-4 text-sm text-white/95 font-body">
-                        {reflection.section}
+                        {reflection.course}
                       </td>
                       <td className="px-6 py-4 text-sm text-white/95 font-body">
                         {reflection.content}
