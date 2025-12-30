@@ -14,6 +14,10 @@ export default async function AdminDashboard() {
   // Serialize dates to strings for client component
   const serializedData = reflectionsData.map((reflection) => ({
     id: reflection.id,
+    name: reflection.name,
+    school: reflection.school,
+    year: reflection.year,
+    section: reflection.section,
     content: reflection.content,
     createdAt: reflection.createdAt 
       ? (reflection.createdAt instanceof Date 

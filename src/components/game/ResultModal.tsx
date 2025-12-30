@@ -81,20 +81,26 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
   const handleReflectionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!reflection.trim()) {
+    // Build FormData from the form so all named inputs are included
+    const form = e.currentTarget as HTMLFormElement;
+
+    const formData = new FormData(form);
+    const contentValue = (formData.get('content') as string) || '';
+
+    if (!contentValue.trim()) {
       return;
     }
 
     setIsSubmittingReflection(true);
     
     try {
-      const formData = new FormData();
-      formData.append('content', reflection.trim());
-
+      // Submit to server action which performs validation
       const result = await submitReflection(formData);
       
       if (result.success) {
         setReflection('');
+        // reset the form fields visually
+        form.reset();
         setToast({
           id: Date.now().toString(),
           message: 'Reflection Saved!',
@@ -178,7 +184,44 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
               </div>
 
               {/* Reflection Input */}
-              <form onSubmit={handleReflectionSubmit} className="w-full max-w-xs">
+              <form onSubmit={handleReflectionSubmit} className="w-full max-w-xs space-y-3">
+                <div className="grid grid-cols-1 gap-2">
+                  <input
+                    name="name"
+                    type="text"
+                    placeholder="Your name"
+                    required
+                    maxLength={100}
+                    className="w-full px-3 py-2 bg-white/8 border border-white/10 rounded-lg text-white placeholder:text-white/50 font-body"
+                  />
+                  <input
+                    name="school"
+                    type="text"
+                    placeholder="School"
+                    required
+                    maxLength={150}
+                    className="w-full px-3 py-2 bg-white/8 border border-white/10 rounded-lg text-white placeholder:text-white/50 font-body"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      name="year"
+                      type="text"
+                      placeholder="Year"
+                      required
+                      maxLength={50}
+                      className="w-full px-3 py-2 bg-white/8 border border-white/10 rounded-lg text-white placeholder:text-white/50 font-body"
+                    />
+                    <input
+                      name="section"
+                      type="text"
+                      placeholder="Section"
+                      required
+                      maxLength={100}
+                      className="w-full px-3 py-2 bg-white/8 border border-white/10 rounded-lg text-white placeholder:text-white/50 font-body"
+                    />
+                  </div>
+                </div>
+
                 <label htmlFor="reflection" className="block text-sm font-medium text-white/95 mb-2 font-body">
                   One word to describe this workout?
                 </label>
@@ -186,6 +229,7 @@ export default function ResultModal({ score, calories, gameType, onClose }: Resu
                   <input
                     ref={inputRef}
                     id="reflection"
+                    name="content"
                     type="text"
                     value={reflection}
                     onChange={(e) => setReflection(e.target.value)}

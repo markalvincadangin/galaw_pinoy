@@ -106,7 +106,7 @@ export default function Health() {
         </section>
 
         {/* Activity Routine */}
-        <section className="py-16 md:py-20 px-6 md:px-8 max-w-5xl mx-auto pb-20 md:pb-28">
+        <section className="py-16 md:py-10 px-6 md:px-8 max-w-5xl mx-auto pb-20 md:pb-28">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
