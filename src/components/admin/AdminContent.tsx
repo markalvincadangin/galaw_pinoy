@@ -74,7 +74,7 @@ export default function AdminContent({ reflectionsData }: AdminContentProps) {
                       Year
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-white font-display">
-                      Section
+                      Course
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-white font-display">
                       Content
