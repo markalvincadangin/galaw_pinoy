@@ -35,9 +35,16 @@ export async function GET() {
 
     // Test 2: Insert a dummy reflection (write operation)
     const insertStartTime = Date.now();
+    const dummyReflection = {
+      section: 'test-section',
+      content: `Test reflection - ${new Date().toISOString()}`,
+      name: 'Test User',
+      school: 'Test School',
+      year: '2024'
+    };
     const insertResult = await db
       .insert(reflections)
-      .values({ content: `Test reflection - ${new Date().toISOString()}` })
+      .values(dummyReflection)
       .returning();
     const insertLatency = Date.now() - insertStartTime;
 

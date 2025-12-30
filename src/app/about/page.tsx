@@ -139,7 +139,7 @@ export default function About() {
             <ul className="list-none m-0 p-0 space-y-4">
               <li className="text-lg md:text-xl text-white/95 font-body flex items-start gap-3">
                 <span className="text-brand-yellow text-2xl font-bold">•</span>
-                <span>First- to fourth-year students in IT, Computer Science, and related technology programs seeking a healthy outlet to de-stress and maintain physical wellness.</span>
+                <span>First to fourth-year students in IT, Computer Science, and related technology programs seeking a healthy outlet to de-stress and maintain physical wellness.</span>
               </li>
               <li className="text-lg md:text-xl text-white/95 font-body flex items-start gap-3">
                 <span className="text-brand-yellow text-2xl font-bold">•</span>
