@@ -11,7 +11,7 @@ import ResultModal from '@/components/game/ResultModal';
 import TutorialModal from '@/components/game/TutorialModal';
 import GameMechanicsModal from '@/components/game/GameMechanicsModal';
 import GameHUD from '@/components/game/GameHUD';
-
+import { useRouter } from 'next/navigation';
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'over';
 
 type Lane = 'left' | 'center' | 'right';
@@ -60,6 +60,7 @@ const RUBBER_BAND_DURATION = 5000; // 5 seconds of slowdown
 const MAX_SPEED_MULTIPLIER = 2.5; // Hard cap on enemy speed multiplier
 
 export default function Patintero(): React.ReactElement {
+  const router = useRouter();
   const webcamRef = useRef<Webcam>(null);
   const { landmarks, isLoading, error, isDetecting } = usePoseDetection(webcamRef);
   const { playGameOver, toggleMusic, isMusicPlaying } = useGameSound();
@@ -226,8 +227,8 @@ export default function Patintero(): React.ReactElement {
       clearTimeout(pityTimerTimeoutRef.current);
       pityTimerTimeoutRef.current = null;
     }
-    // Stop background music when game resets
-    if (isMusicPlaying) {
+    // Start background music when game starts
+    if (!isMusicPlaying) {
       toggleMusic();
     }
   }, [isMusicPlaying, toggleMusic]);
@@ -235,7 +236,11 @@ export default function Patintero(): React.ReactElement {
   // Handle calibration complete
   const handleCalibrated = useCallback(() => {
     setGameState('ready');
-  }, []);
+    // Auto-start countdown after 1.5 seconds
+    setTimeout(() => {
+      startCountdown();
+    }, 1500);
+  }, [gameState]);
 
   // Start timer
   const startTimer = useCallback(() => {
@@ -575,17 +580,8 @@ export default function Patintero(): React.ReactElement {
 
   // Start countdown
   const startCountdown = useCallback(() => {
-    // Block gameplay if tutorial is open
-    if (showTutorial) {
-      return;
-    }
-    
     setGameState('countdown');
     setCountdown(5);
-    // Start background music during countdown for better anticipation
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
 
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
@@ -599,9 +595,7 @@ export default function Patintero(): React.ReactElement {
         return prev - 1;
       });
     }, 1000);
-  }, [beginPlaying, isMusicPlaying, toggleMusic, showTutorial]);
-
-  // Removed auto-start logic - user should click START button instead
+  }, [beginPlaying]);
 
   // Keep refs in sync
   useEffect(() => {
@@ -641,7 +635,7 @@ export default function Patintero(): React.ReactElement {
     if (isLoading) return 'Loading pose detection...';
     if (error) return `Error: ${error}`;
     if (gameState === 'idle') return 'Step back until your full body is visible on camera.';
-    if (gameState === 'ready') return 'Step back. Full body must be visible.';
+    if (gameState === 'ready') return 'Ready!';
     if (gameState === 'countdown') return `Starting in ${countdown}...`;
     if (gameState === 'playing') return 'SURVIVE!';
     if (gameState === 'over') return `CAUGHT! Time Survived: ${Math.floor(elapsedTime)}s`;
@@ -688,7 +682,7 @@ export default function Patintero(): React.ReactElement {
             left: 0,
             right: 0,
             bottom: 0,
-            zIndex: 1000,
+            zIndex: showResultModal ? 50 : 1000,
           }}
         >
           {/* Camera Error UI */}
@@ -830,18 +824,6 @@ export default function Patintero(): React.ReactElement {
             )}
           </div>
 
-          {/* START Button in Ready State */}
-          {gameState === 'ready' && (
-            <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-auto">
-              <button
-                onClick={startCountdown}
-                className="px-12 py-6 bg-brand-yellow hover:bg-yellow-500 text-black font-display font-bold text-2xl rounded-2xl shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
-              >
-                START
-              </button>
-            </div>
-          )}
-
           {/* HUD Overlay */}
           <GameHUD
             status={feverMode ? '🔥 FEVER MODE 🔥' : getStatusText()}
@@ -866,7 +848,9 @@ export default function Patintero(): React.ReactElement {
           gameType="patintero"
           onClose={() => {
             setShowResultModal(false);
-            setGameState('idle');
+            setShowTutorial(false);
+            setShowMechanics(false);
+            router.push('/play');
           }}
         />
       )}

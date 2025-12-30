@@ -13,7 +13,7 @@ interface CalibrationCheckProps {
 const MIN_ANKLE_DISTANCE_PX = 30; // Minimum distance in pixels (user too far) - relaxed from 50
 const MAX_ANKLE_DISTANCE_PX = 400; // Maximum distance in pixels (user too close) - relaxed from 300
 const MIN_VISIBILITY_SCORE = 0.5; // Minimum visibility score for key landmarks - relaxed from 0.6
-const CALIBRATION_DURATION = 1500; // 1.5 seconds in milliseconds - reduced from 3 seconds
+const CALIBRATION_DURATION = 5000; // 5 seconds in milliseconds
 const MOVEMENT_THRESHOLD_PX = 20; // Movement tolerance in pixels before resetting calibration
 const CALIBRATION_TIMEOUT = 10000; // 10 seconds before showing skip button
 
