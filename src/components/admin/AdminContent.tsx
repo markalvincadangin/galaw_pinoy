@@ -5,6 +5,10 @@ import DebugToggle from '@/components/admin/DebugToggle';
 
 interface Reflection {
   id: string;
+  name: string;
+  school: string;
+  year: string;
+  section: string;
   content: string;
   createdAt: string | null; // ISO string from server
 }
@@ -61,6 +65,18 @@ export default function AdminContent({ reflectionsData }: AdminContentProps) {
                       Timestamp
                     </th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-white font-display">
+                      Name
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-white font-display">
+                      School
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-white font-display">
+                      Year
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-white font-display">
+                      Section
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-white font-display">
                       Content
                     </th>
                   </tr>
@@ -83,6 +99,18 @@ export default function AdminContent({ reflectionsData }: AdminContentProps) {
                           : 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-white/95 font-body">
+                        {reflection.name}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-white/95 font-body">
+                        {reflection.school}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-white/95 font-body">
+                        {reflection.year}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-white/95 font-body">
+                        {reflection.section}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-white/95 font-body">
                         {reflection.content}
                       </td>
                     </tr>
@@ -96,4 +124,3 @@ export default function AdminContent({ reflectionsData }: AdminContentProps) {
     </main>
   );
 }
-

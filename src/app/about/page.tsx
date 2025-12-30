@@ -33,7 +33,7 @@ export default function About() {
         </section>
 
         {/* Why This Advocacy */}
-        <section className="py-16 md:py-20 px-6 md:px-8 max-w-5xl mx-auto">
+        <section className="py-16 md:py-15 px-6 md:px-8 max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -66,7 +66,7 @@ export default function About() {
         </section>
 
         {/* Advocacy Objectives */}
-        <section className="py-16 md:py-20 px-6 md:px-8 max-w-5xl mx-auto">
+        <section className="py-16 md:py-10 px-6 md:px-8 max-w-5xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -125,7 +125,7 @@ export default function About() {
         </section>
 
         {/* Target Audience */}
-        <section className="py-16 md:py-20 px-6 md:px-8 max-w-5xl mx-auto pb-20 md:pb-28">
+        <section className="py-10 md:py-10 px-6 md:px-8 max-w-5xl mx-auto pb-20 md:pb-28">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -133,21 +133,17 @@ export default function About() {
             transition={{ duration: 0.6 }}
             className="glass-modern rounded-3xl p-8 md:p-12 cultural-texture"
           >
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-6 drop-shadow-lg">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-center text-white mb-6 drop-shadow-lg">
               Target Audience
             </h2>
             <ul className="list-none m-0 p-0 space-y-4">
               <li className="text-lg md:text-xl text-white/95 font-body flex items-start gap-3">
                 <span className="text-brand-yellow text-2xl font-bold">•</span>
-                <span>Junior High, Senior High, and College students</span>
+                <span>First- to fourth-year students in IT, Computer Science, and related technology programs seeking a healthy outlet to de-stress and maintain physical wellness.</span>
               </li>
               <li className="text-lg md:text-xl text-white/95 font-body flex items-start gap-3">
                 <span className="text-brand-yellow text-2xl font-bold">•</span>
-                <span>Filipino youth aged 13–25</span>
-              </li>
-              <li className="text-lg md:text-xl text-white/95 font-body flex items-start gap-3">
-                <span className="text-brand-yellow text-2xl font-bold">•</span>
-                <span>Educators and PE instructors</span>
+                <span>Members of IT-related organizations who want to strengthen teamwork and friendship through play.</span>
               </li>
             </ul>
           </motion.div>

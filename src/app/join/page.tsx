@@ -43,13 +43,49 @@ function ReflectionForm({ initialState }: { initialState: ActionResult | null })
   }, [state?.success]);
 
   return (
-    <form ref={formRef} action={formAction} className="mt-0">
+    <form ref={formRef} action={formAction} className="mt-0 space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          name="name"
+          type="text"
+          placeholder="Your name"
+          required
+          maxLength={100}
+          className="w-full px-4 py-3 text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-white placeholder:text-white/50 font-body"
+        />
+        <input
+          name="school"
+          type="text"
+          placeholder="School"
+          required
+          maxLength={150}
+          className="w-full px-4 py-3 text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-white placeholder:text-white/50 font-body"
+        />
+        <input
+          name="year"
+          type="text"
+          placeholder="Year"
+          required
+          maxLength={50}
+          className="w-full px-4 py-3 text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-white placeholder:text-white/50 font-body"
+        />
+        <input
+          name="section"
+          type="text"
+          placeholder="Section"
+          required
+          maxLength={100}
+          className="w-full px-4 py-3 text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-white placeholder:text-white/50 font-body"
+        />
+      </div>
+
       <textarea
         ref={textareaRef}
         name="content"
         rows={5}
         placeholder="Write your reflection here..."
         required
+        maxLength={5000}
         className="w-full px-4 py-3 text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue resize-none mb-6 transition-all text-white placeholder:text-white/50 font-body"
       />
       <div className="flex justify-start mt-0">
@@ -156,4 +192,3 @@ export default function Join() {
     </>
   );
 }
-
