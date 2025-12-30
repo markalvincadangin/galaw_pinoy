@@ -12,6 +12,7 @@ import TutorialModal from '@/components/game/TutorialModal';
 import GameMechanicsModal from '@/components/game/GameMechanicsModal';
 import GameHUD from '@/components/game/GameHUD';
 import { saveGameResult } from '@/app/actions/game';
+import {useRouter} from 'next/navigation';
 
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'paused' | 'over';
 
@@ -26,9 +27,10 @@ const MIN_STAMINA_TO_JUMP = 30;
 const PERFECT_ZONE_THRESHOLD = 0.1; // Hurdle within 10% of ground = perfect timing
 const GOOD_ZONE_THRESHOLD = 0.2; // Hurdle within 20% of ground = good timing
 const STABILITY_VARIANCE = 0.03; // 30px equivalent in normalized coordinates (3%)
-const HIP_VELOCITY_THRESHOLD = 0.001; // Threshold for "standing still" (normalized/ms)
+const HIP_VELOCITY_THRESHOLD = 0.005; // Threshold for "standing still" (normalized/ms)
 
 export default function LuksongTinik(): React.ReactElement {
+  const router = useRouter();
   const webcamRef = useRef<Webcam>(null);
   const { landmarks, isLoading, error, isDetecting, userHeight } = usePoseDetection(webcamRef);
   const { playJump, playScore, playGameOver, toggleMusic, isMusicPlaying } = useGameSound();
@@ -147,8 +149,8 @@ export default function LuksongTinik(): React.ReactElement {
       clearInterval(staminaRegenIntervalRef.current);
       staminaRegenIntervalRef.current = null;
     }
-    // Stop background music when game resets
-    if (isMusicPlaying) {
+    // Start background music when game starts
+    if (!isMusicPlaying) {
       toggleMusic();
     }
   }, [isMusicPlaying, toggleMusic]);
@@ -156,6 +158,9 @@ export default function LuksongTinik(): React.ReactElement {
   // Handle calibration complete
   const handleCalibrated = useCallback(() => {
     setGameState('ready');
+    setTimeout(() => {
+      startCountdown();
+    }, 1500);
   }, []);
 
   // End game (defined first since it's used by other callbacks)
@@ -190,9 +195,7 @@ export default function LuksongTinik(): React.ReactElement {
     setFinalCalories(calories);
 
     // Stop background music when game ends
-    if (isMusicPlaying) {
-      toggleMusic();
-    }
+    toggleMusic();
 
     // Play game over sound
     playGameOver();
@@ -249,11 +252,6 @@ export default function LuksongTinik(): React.ReactElement {
 
   // Start level
   const startLevel = useCallback(() => {
-    // Block gameplay if tutorial is open
-    if (showTutorial) {
-      return;
-    }
-    
     setGameState('playing');
     setCooldown(false);
     startGameTimer();
@@ -262,8 +260,9 @@ export default function LuksongTinik(): React.ReactElement {
     if (landmarks?.leftHip && landmarks?.rightHip) {
       const avgHipY = (landmarks.leftHip.y + landmarks.rightHip.y) / 2;
       setGroundHipY(avgHipY);
+      console.log('✅ Ground position set at level start:', avgHipY);
     }
-    
+
     // Start strategic stamina regeneration (only when standing still)
     if (staminaRegenIntervalRef.current) {
       clearInterval(staminaRegenIntervalRef.current);
@@ -277,21 +276,12 @@ export default function LuksongTinik(): React.ReactElement {
         return newStamina;
       });
     }, 1000); // Check every second
-  }, [startGameTimer, hipVelocity, showTutorial, landmarks]);
+  }, [startGameTimer, hipVelocity, landmarks, groundHipY]);
 
   // Start countdown
   const startCountdown = useCallback(() => {
-    // Block gameplay if tutorial is open
-    if (showTutorial) {
-      return;
-    }
-    
     setGameState('countdown');
     setCountdown(3);
-    // Start background music during countdown for better anticipation
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
 
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
@@ -305,7 +295,7 @@ export default function LuksongTinik(): React.ReactElement {
         return prev - 1;
       });
     }, 1000);
-  }, [startLevel, isMusicPlaying, toggleMusic, showTutorial]);
+  }, [startLevel]);
 
   // Level clear with combo detection and stability multiplier
   const levelClear = useCallback((comboType: 'perfect' | 'good' | 'normal' = 'normal') => {
@@ -339,12 +329,10 @@ export default function LuksongTinik(): React.ReactElement {
       });
 
       setGameState('paused');
-      
-      // Stop stamina regeneration when paused
-      if (staminaRegenIntervalRef.current) {
-        clearInterval(staminaRegenIntervalRef.current);
-        staminaRegenIntervalRef.current = null;
-      }
+
+      setTimeout(() => {
+        startCountdown();
+      }, 1500);
       
       // Reset cooldown after 500ms
       setTimeout(() => {
@@ -367,20 +355,6 @@ export default function LuksongTinik(): React.ReactElement {
       jumpCooldownTimeoutRef.current = null;
     }, 1000);
   }, [endGame]);
-
-  // Unlock logic: Check if user jumps (hipVelocity < -5.0 normalized/second)
-  useEffect(() => {
-    if (isUnlocked || !showTutorial) return; // Already unlocked or tutorial closed
-    
-    // Convert hipVelocity from normalized/ms to normalized/second for comparison
-    // hipVelocity is calculated as deltaY / deltaTime (in ms), so multiply by 1000
-    const hipVelocityPerSecond = hipVelocity * 1000;
-    
-    // Check if jumping up (negative velocity = moving up)
-    if (hipVelocityPerSecond < -5.0) {
-      setIsUnlocked(true);
-    }
-  }, [hipVelocity, isUnlocked, showTutorial]);
 
   // Reset ground position when game state changes (but not when starting level)
   useEffect(() => {
@@ -414,28 +388,43 @@ export default function LuksongTinik(): React.ReactElement {
 
     // Check stamina - can't jump if too tired
     if (stamina < MIN_STAMINA_TO_JUMP) {
+      console.log('❌ BLOCKED: Not enough stamina');
       return;
     }
 
     // Safety check: if pose detection fails, show error UI
     if (error) {
+      console.log('❌ BLOCKED: Pose detection error');
       setTimeout(() => {
         setPoseDetectionError(error);
       }, 0);
       return;
     } else {
+      console.log('✅ Pose detection OK');
       setTimeout(() => {
         setPoseDetectionError(null);
       }, 0);
     }
 
+    // Instead of blocking, try to set groundHipY if missing
+    if (!groundHipY && landmarks?.leftHip && landmarks?.rightHip) {
+      // Set ground position immediately when we have data
+      const avgHipY = (landmarks.leftHip.y + landmarks.rightHip.y) / 2;
+      setGroundHipY(avgHipY);
+      console.log('🏠 Set groundHipY in jump detection:', avgHipY);
+      // Continue with jump detection using the new value
+      // Don't return - process this frame
+    }
+
     // Early return if pose data not available, but don't block game end logic
     if (!landmarks || !groundHipY || !userHeight) {
+      console.log('❌ BLOCKED: Missing required data');
       return;
     }
 
     // Guard: Check game state again inside try block to prevent execution after game ends
     if (gameState !== 'playing') {
+      console.log('❌ BLOCKED: Wrong game state');
       return;
     }
 
@@ -485,6 +474,7 @@ export default function LuksongTinik(): React.ReactElement {
       if (isJumpingNow && !isJumping) {
         // User just jumped - store jump start position for stability calculation
         setJumpStartX(currentHipX);
+        console.log('JUMP DETECTED!', { currentHipY, jumpThreshold, groundHipY });
         
         // Detect combo timing (hurdle position)
         let comboType: 'perfect' | 'good' | 'normal' = 'normal';
@@ -554,13 +544,6 @@ export default function LuksongTinik(): React.ReactElement {
     }
   }, [landmarks, gameState, cooldown, jumpCooldown, groundHipY, userHeight, hurdleY, stamina, levelClear, error, isJumping, jumpStartX, previousHipY, showTutorial, triggerFeedback]);
 
-  // Handle action button
-  const handleAction = useCallback(() => {
-    if (gameState === 'ready' || gameState === 'paused') {
-      startCountdown();
-    }
-  }, [gameState, startCountdown]);
-
   // Cleanup intervals on unmount
   useEffect(() => {
     return () => {
@@ -584,7 +567,7 @@ export default function LuksongTinik(): React.ReactElement {
     if (isLoading) return 'Loading pose detection...';
     if (error) return `Error: ${error}`;
     if (gameState === 'idle') return 'Step back until your full body is visible on camera.';
-    if (gameState === 'ready') return 'Step back. Full body must be visible.';
+    if (gameState === 'ready') return 'Ready!';
     if (gameState === 'countdown') return `Starting in ${countdown}...`;
     if (gameState === 'playing') {
       if (stamina < MIN_STAMINA_TO_JUMP) {
@@ -592,7 +575,7 @@ export default function LuksongTinik(): React.ReactElement {
       }
       return 'JUMP!';
     }
-    if (gameState === 'paused') return 'Level Cleared! Press CONTINUE';
+    if (gameState === 'paused') return 'Level Cleared! Ready for next level!';
     if (gameState === 'over') return 'Game Over!';
     return 'Initializing...';
   };
@@ -631,7 +614,7 @@ export default function LuksongTinik(): React.ReactElement {
             left: 0,
             right: 0,
             bottom: 0,
-            zIndex: 1000,
+            zIndex: showResultModal ? 50 : 1000,
             transform: `scale(${cameraZoom})`,
             transformOrigin: 'center center',
             transition: 'transform 0.3s ease-out',
@@ -793,15 +776,6 @@ export default function LuksongTinik(): React.ReactElement {
             )}
           </AnimatePresence>
 
-          {/* Action Button */}
-          {(gameState === 'ready' || gameState === 'paused') && (
-            <button
-              onClick={handleAction}
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-colors"
-            >
-              {gameState === 'ready' ? 'START' : 'CONTINUE'}
-            </button>
-          )}
         </motion.section>
       )}
 
@@ -813,7 +787,9 @@ export default function LuksongTinik(): React.ReactElement {
           gameType="luksong-tinik"
           onClose={() => {
             setShowResultModal(false);
-            setGameState('idle');
+            setShowTutorial(false);
+            setShowMechanics(false);
+            router.push('/play');
           }}
         />
       )}

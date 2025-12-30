@@ -4,11 +4,17 @@ import { pgTable, uuid, text, timestamp, integer } from 'drizzle-orm/pg-core';
  * Reflections table - replaces the old Firebase 'reflections' collection
  * Stores user reflections about their fitness and cultural experience
  */
+// db/schema.ts
 export const reflections = pgTable('reflections', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  content: text('content').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
+    id: uuid('id').defaultRandom().primaryKey(),  // UUID primary key
+    name: text('name').notNull(),                 // Student's name
+    school: text('school').notNull(),             // School name
+    year: text('year').notNull(),                 // Year level
+    section: text('section').notNull(),           // Section/class
+    content: text('content').notNull(),           // Reflection content
+    createdAt: timestamp('created_at').defaultNow(), // Timestamp
 });
+
 
 /**
  * Users table - links to Supabase Auth

@@ -11,15 +11,17 @@ import ResultModal from '@/components/game/ResultModal';
 import TutorialModal from '@/components/game/TutorialModal';
 import GameMechanicsModal from '@/components/game/GameMechanicsModal';
 import GameHUD from '@/components/game/GameHUD';
+import {useRouter} from 'next/navigation';
 
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'over';
 
 const TRACK_LENGTH = 100; // Percentage (0-100)
-const HIGH_KNEE_THRESHOLD = 0.10; // Knee must be 10% higher than hip (reduced from 0.15 for better sensitivity)
+const HIGH_KNEE_THRESHOLD = 0.08; // Knee must be 8% higher than hip
 const KNEE_LIFT_COOLDOWN = 300; // Milliseconds between knee lift detections
 const BASE_DISTANCE = 50; // Distance to enemy base (percentage)
 
 export default function AgawanBase(): React.ReactElement {
+  const router = useRouter();
   const webcamRef = useRef<Webcam>(null);
   const { landmarks, isLoading, error, isDetecting } = usePoseDetection(webcamRef);
   const { playJump, playGameOver, toggleMusic, isMusicPlaying } = useGameSound();
@@ -60,8 +62,8 @@ export default function AgawanBase(): React.ReactElement {
     // Clear intervals
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     if (enemyMoveIntervalRef.current) clearInterval(enemyMoveIntervalRef.current);
-    // Stop background music when game resets
-    if (isMusicPlaying) {
+    // Start background music when game starts
+    if (!isMusicPlaying) {
       toggleMusic();
     }
   }, [isMusicPlaying, toggleMusic]);
@@ -69,7 +71,11 @@ export default function AgawanBase(): React.ReactElement {
   // Handle calibration complete
   const handleCalibrated = useCallback(() => {
     setGameState('ready');
-  }, []);
+    // Auto-start countdown after 1.5 seconds
+    setTimeout(() => {
+        startCountdown();
+    }, 1500);
+  }, [gameState]);
 
   // End game (declared first since it's used by other callbacks)
   const endGame = useCallback(() => {
@@ -106,9 +112,7 @@ export default function AgawanBase(): React.ReactElement {
     setFinalCalories(calories);
 
     // Stop background music
-    if (isMusicPlaying) {
-      toggleMusic();
-    }
+    toggleMusic();
 
     // Play game over sound
     playGameOver();
@@ -119,11 +123,6 @@ export default function AgawanBase(): React.ReactElement {
 
   // Begin playing
   const beginPlaying = useCallback(() => {
-    // Block gameplay if tutorial is open
-    if (showTutorial) {
-      return;
-    }
-    
     setGameState('playing');
     gameStartTimeRef.current = Date.now();
     
@@ -145,24 +144,11 @@ export default function AgawanBase(): React.ReactElement {
       });
     }, 100);
     
-    // Start background music
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
-  }, [isMusicPlaying, toggleMusic, showTutorial, endGame, gameState]);
+  }, [endGame, gameState]);
 
   // Start countdown
   const startCountdown = useCallback(() => {
-    // Block gameplay if tutorial is open
-    if (showTutorial) {
-      return;
-    }
-    
     setGameState('countdown');
-    // Start background music during countdown
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
     
     // Countdown from 3
     let count = 3;
@@ -174,7 +160,7 @@ export default function AgawanBase(): React.ReactElement {
         count--;
       }
     }, 1000);
-  }, [isMusicPlaying, toggleMusic, showTutorial, beginPlaying]);
+  }, [beginPlaying]);
 
   // Unlock logic: Check if user lifts knee high (leftKnee.y < leftHip.y OR rightKnee.y < rightHip.y)
   useEffect(() => {
@@ -259,7 +245,7 @@ export default function AgawanBase(): React.ReactElement {
     if (isLoading) return 'Loading pose detection...';
     if (error) return `Error: ${error}`;
     if (gameState === 'idle') return 'Step back until your full body is visible.';
-    if (gameState === 'ready') return 'Ready! Press START';
+    if (gameState === 'ready') return 'Ready!';
     if (gameState === 'countdown') return 'Get ready to run!';
     if (gameState === 'playing') {
       if (playerPosition >= TRACK_LENGTH) return 'VICTORY!';
@@ -301,7 +287,7 @@ export default function AgawanBase(): React.ReactElement {
             left: 0,
             right: 0,
             bottom: 0,
-            zIndex: 1000,
+            zIndex: showResultModal? 50 : 1000,
           }}
           animate={{
             x: screenShake ? [0, -shakeIntensity, shakeIntensity, -shakeIntensity, shakeIntensity, 0] : 0,
@@ -413,16 +399,6 @@ export default function AgawanBase(): React.ReactElement {
             showPoseWarning={!isDetecting && gameState === 'playing' && !showResultModal}
             gameState={gameState}
           />
-
-          {/* Action Button */}
-          {gameState === 'ready' && (
-            <button
-              onClick={startCountdown}
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold transition-colors"
-            >
-              START
-            </button>
-          )}
         </motion.section>
       )}
 
@@ -434,7 +410,9 @@ export default function AgawanBase(): React.ReactElement {
           gameType="agawan-base"
           onClose={() => {
             setShowResultModal(false);
-            setGameState('idle');
+            setShowTutorial(false);
+            setShowMechanics(false);
+            router.push('/play');
           }}
         />
       )}

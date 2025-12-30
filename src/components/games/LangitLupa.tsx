@@ -12,6 +12,7 @@ import ResultModal from '@/components/game/ResultModal';
 import TutorialModal from '@/components/game/TutorialModal';
 import GameMechanicsModal from '@/components/game/GameMechanicsModal';
 import GameHUD from '@/components/game/GameHUD';
+import { useRouter } from 'next/navigation';
 
 type GameState = 'idle' | 'lobby' | 'ready' | 'countdown' | 'playing' | 'over';
 type PoseCommand = 'LANGIT' | 'LUPA'; // Langit = Heaven (Stand/Jump), Lupa = Earth (Squat)
@@ -22,6 +23,7 @@ const REACTION_TIME_DECREMENT = 100; // Decrease by 100ms per level
 const LEVEL_UP_SCORE = 5; // Points needed to level up
 
 export default function LangitLupa(): React.ReactElement {
+  const router = useRouter();
   const webcamRef = useRef<Webcam>(null);
   const { landmarks, isLoading, error, isDetecting } = usePoseDetection(webcamRef);
   const { playScore, playGameOver, toggleMusic, isMusicPlaying } = useGameSound();
@@ -62,8 +64,8 @@ export default function LangitLupa(): React.ReactElement {
     if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
     if (reactionTimerRef.current) clearTimeout(reactionTimerRef.current);
     if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
-    // Stop background music when game resets
-    if (isMusicPlaying) {
+    // Start background music when game starts
+    if (!isMusicPlaying) {
       toggleMusic();
     }
   }, [isMusicPlaying, toggleMusic]);
@@ -71,7 +73,11 @@ export default function LangitLupa(): React.ReactElement {
   // Handle calibration complete
   const handleCalibrated = useCallback(() => {
     setGameState('ready');
-  }, []);
+    // Auto-start countdown after 1.5 seconds
+    setTimeout(() => {
+      startCountdown();
+    }, 1500);
+  }, [gameState]);
 
   // End game (declared first since it's used by other callbacks)
   const endGame = useCallback(() => {
@@ -97,7 +103,7 @@ export default function LangitLupa(): React.ReactElement {
     if (isMusicPlaying) {
       toggleMusic();
     }
-
+    
     // Play game over sound
     playGameOver();
 
@@ -146,33 +152,16 @@ export default function LangitLupa(): React.ReactElement {
   }, [reactionTime, handleMiss]);
 
   // Begin playing
-  const beginPlaying = useCallback(() => {
-    // Block gameplay if tutorial is open
-    if (showTutorial) {
-      return;
-    }
-    
+  const beginPlaying = useCallback(() => {    
     setGameState('playing');
-    // Start background music
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
+
     generateNewCommand();
-  }, [isMusicPlaying, toggleMusic, showTutorial, generateNewCommand]);
+  }, [generateNewCommand]);
 
   // Start countdown (used in dependency array, but auto-starts after calibration)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const startCountdown = useCallback(() => {
-    // Block gameplay if tutorial is open
-    if (showTutorial) {
-      return;
-    }
-    
     setGameState('countdown');
-    // Start background music during countdown
-    if (!isMusicPlaying) {
-      toggleMusic();
-    }
     
     // Countdown from 3
     let count = 3;
@@ -184,7 +173,7 @@ export default function LangitLupa(): React.ReactElement {
         count--;
       }
     }, 1000);
-  }, [isMusicPlaying, toggleMusic, showTutorial, beginPlaying]);
+  }, [beginPlaying]);
 
   // Handle correct pose
   const handleCorrect = useCallback(() => {
@@ -372,7 +361,7 @@ export default function LangitLupa(): React.ReactElement {
     if (isLoading) return 'Loading pose detection...';
     if (error) return `Error: ${error}`;
     if (gameState === 'idle') return 'Step back until your full body is visible.';
-    if (gameState === 'ready') return 'Ready! Press START';
+    if (gameState === 'ready') return 'Ready!';
     if (gameState === 'countdown') return 'Get ready...';
     if (gameState === 'playing') {
       if (!currentCommand) return 'Waiting...';
@@ -417,7 +406,7 @@ export default function LangitLupa(): React.ReactElement {
             left: 0,
             right: 0,
             bottom: 0,
-            zIndex: 1000,
+            zIndex: showResultModal ? 50 : 1000,
           }}
           animate={{
             x: screenShake ? [0, -shakeIntensity, shakeIntensity, -shakeIntensity, shakeIntensity, 0] : 0,
@@ -491,18 +480,6 @@ export default function LangitLupa(): React.ReactElement {
             </div>
           )}
 
-          {/* START Button in Ready State */}
-          {gameState === 'ready' && (
-            <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-auto">
-              <button
-                onClick={startCountdown}
-                className="px-12 py-6 bg-brand-yellow hover:bg-yellow-500 text-black font-display font-bold text-2xl rounded-2xl shadow-2xl transition-all duration-200 hover:scale-105 active:scale-95"
-              >
-                START
-              </button>
-            </div>
-          )}
-
           {/* HUD Overlay */}
           <GameHUD
             status={getStatusText()}
@@ -523,7 +500,9 @@ export default function LangitLupa(): React.ReactElement {
           gameType="langit-lupa"
           onClose={() => {
             setShowResultModal(false);
-            setGameState('idle');
+            setShowTutorial(false);
+            setShowMechanics(false);
+            router.push('/play');
           }}
         />
       )}

@@ -38,8 +38,7 @@ export default function AgawanBase() {
             </h1>
 
             <p className="text-lg md:text-xl lg:text-2xl text-white/95 leading-relaxed font-body drop-shadow-md max-w-3xl mx-auto">
-              A fast-paced team game of speed, strategy, and teamwork where
-              players defend their base while daring to capture the enemy’s.
+                Agawan Base, meaning “Capture the Base,” is a mix of tag and strategy games. Teams often create clever distractions or “decoys” to sneak into the opponent’s base without being tagged.
             </p>
           </motion.div>
         </section>

@@ -47,8 +47,8 @@ export default function Piko() {
 
         {/* Info Sections */}
         <section className="py-16 md:py-20 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          <InfoCard icon={Flag} title="Short Description" color="from-brand-red to-red-700">
-            <em>Piko is the Philippine version of hopscotch, traditionally played outdoors using a grid drawn on the ground.</em>
+          <InfoCard icon={Flag} title="Description" color="from-brand-red to-red-700">
+            <em>The term “Piko” is thought to come from the Spanish word “pico,” which means “point” or “tip,” possibly referring to the small stone or marker used in the game.</em>
           </InfoCard>
 
           <InfoCard icon={History} title="History" color="from-brand-yellow to-yellow-600">
